@@ -63,7 +63,7 @@ Used for:
 
 -----------------------------
 
-$A132: Main loop - $A1F9 (+2 байта)
+$A132: Main loop - $A1F9 (+2 bytes)
 
 
 $A132 CALL $E576  ;poop for menu,demo and high score table, exists when start key is pressed
@@ -178,7 +178,7 @@ $A22E RET             ;выход из прерывания
 <======================================>
 
 
-$A241: Keyboard query - $A25B(+2)
+;$A241: Keyboard query - $A25B(+2)
 
 ??? В зависимости от 5-го бита ячейки $C4B3 опрашивает или нет пробел. Возврат - в флаге Z ???
 
@@ -191,18 +191,18 @@ $A24E LD A,($C4B3)
 ...
 
 ----------------------
-Variables:
+;Variables:
 
-$A25C (1) : sound to play
-$A25E (1)
+;$A25C (1) : sound to play
+;$A25E (1)
 ----------------------
 
-$A25F: Play sound or wait - $A271
+;$A25F: Play sound or wait - $A271
 
 $A25F XOR A
-      LD ($C4B9),A  ;clear flag that interrupt happened
+      LD ($C4B9),A  ;clear flag that interrupt has happened
       LD A,$FE
-      LD I, A
+      LD I,A
       EI            ;enable interrupts
       CALL $A272    ;play sound, returns if nothing played or interrupt has happened
 $A26B LD A,($C4B9)
@@ -210,8 +210,8 @@ $A26B LD A,($C4B9)
       JR Z,$A26B    ;wait until interrupt flag will be set
 $A271 RET
 
-----------------------
-$A272: Play sound  - $A2C9
+;----------------------
+;$A272: Play sound  - $A2C9
 
 $A272 LD HL,$A25C
       LD A,(HL)     ;read variable
@@ -273,8 +273,8 @@ $A2BF LD A,($C4B9)  ;flag to exit
 $A2C9 RET
 
 
-----------------------
-$A378: Send hard-coded values to AY chip - $A397
+;----------------------
+;$A378: Send hard-coded values to AY chip - $A397
 
 $A378 XOR A
 $A379 LD ($A25E),A  ;???
@@ -297,12 +297,12 @@ $A393 LD B,$BF
 $A395 OUT (C),D     ;
 $A397 RET           ;ret
 
-----------------------
+;----------------------
 ;$A44C: Screen scroll if we are riding a platform, or falling down - $A479 (+2)
 
 $A44C LD A,($C4BF)  ;get jumping/falling frame
       LD B,A
-      LD A,($C4B6)  ;?? or we are riding a platform ??
+      LD A,($C4B6)  ;index of a platform we are riding on
       OR B
       RET NZ        ;ret if at least one of them is not 0
       LD A,($C4EB)  ;vertical shift
@@ -327,8 +327,8 @@ $A472 LD A,($C3AA)  ;vertical coord
       JR C,$A469
 $A479 JR $A460
 
-----------------------
-$A47B: prepare a game screen - $A4DB (and falls further)
+;----------------------
+;$A47B: prepare a game screen - $A4DB (and falls further)
 
 $A47B LD A,R
 $A47D AND $07
@@ -3809,6 +3809,9 @@ Entry size is $0C bytes. Entry format:
 +0 (1) status, bit 7 if already handled
 +1 (1) vertical coord in pixels
 +2 (1) horizontal coord in pixels
++3 (1) ??
++5 (1) ??
++6 (1) ??
 +7 (1) width in pixels
 +8 (1) height in pixels
 +9 - falling frame
@@ -3832,11 +3835,12 @@ $C4A6
 
 $C4AA (2)
 $C4AC (2)
-$C4AF (1) : player's sprite number (bits 0-2), sit (bit 6) and direction (bit 7, 1 - left, 0 - right)
+$C4AF (1) : player's sprite: step number (bits 0-2), sit (bit 6) and direction (bit 7, 1 - left, 0 - right)
 
 
 $C4B0 (1) :  game state
 $C4B1 (1) :  ??
+$C4B3 (1) :  currently pressed logical keys: bit 0 - 'right', bit 1 - 'left', bit 2 - 'sit'
 $C4B6 (1) :  index of platform player rides on
 $C4B8 (1) :  ?? some flag
 
@@ -3844,7 +3848,8 @@ $C4B8 (1) :  ?? some flag
 $C4BA (1) : number of visible colliding dynamic objects (monsters, missiles, clouds)
 $C4BB (1) : ??
 $C4BE (1) : ??
-$C4BF (1) : current jumping/falling frame. Bit 7 indicates if it is jumping or falling (1 - falling). If jumping, table base is $C5CA, if falling, table base is $C5D8
+$C4BF (1) : current jumping/falling frame. Bit 7 indicates if it is jumping or falling (1 - falling).
+            If jumping, table base is $C5CA, if falling, table base is $C5D8
 
 $C4C1 (1) : ??
 $C4C7 (1) : ?
@@ -3870,10 +3875,10 @@ $C4E4 - (2) horizontal and vertical shift of upper left block in pixels from lef
 $C4E6 (1) : horizontal movement of screen to the left since last time, in pixels
 $C4E7 (1) : vertical movement of screen up since last time, in pixels
 $C4E8 (2) : horizontal and vertical coordinates in labyrinth blocks of current upper left visible block
-$C4EA - horizontal shift of block to the left, in pairs of pixels. Possible values from 0 to 4
-$C4EB - how many line-pairs to draw in top slice of each block (vertical shift of block up, in pairs of pixels). Possible values between 0 and 4
+$C4EA - horizontal shift of block to the left, in pairs of pixels. Possible values from 0 to 4 (3?)
+$C4EB - how many line-pairs to draw in top slice of each block (vertical shift of block up, in pairs of pixels). Possible values from 0 to 3
 $C4EC - horizontal shift of blocks to the left, in 8-pixel bytes.
-$C4ED - how many line-pairs to draw in second slice of each block. Possible values between 0 and 4
+$C4ED - how many line-pairs to draw in second slice of each block. Possible values from 0 to 4 (3?)
 
 
 
@@ -4025,8 +4030,17 @@ $C5C5 RRA
       JR NZ,$C5C5
 $C5C9 RET
 
---------------
-$C5E7 - handle moving left and right, jump, fall down and sit down, with collision detection - $C79D
+;--------------
+;$C5E7 - handle moving left and right, jump, fall down and sit down, with collision detection - $C79D
+;this procedure checks player's state in ($C4AF), ($C4BF) and, if appropriate, logical keys in ($C4B3)
+;horizontal movement is handled even if player is jumping or falling
+;it performs movement by updating following vars:
+; player's state such as step number and direction in ($C4AF), jumping/falling status in ($C4BF)
+; complex horizonal coord ($C4E9)+($C4EC)+($C4EA) and complex vertical coord ($C4E8)+($C4ED)+($C4EB)
+; derived values: full horizontal coord ($C4E0), full vertical coord ($C4E2)
+; player coords on a screen ($C3AA)
+;also checks if player falls below the screen, or falls on spikes. In this case, status ($C4B0) is changed to 'death'
+;if player walks over a teleport, this block is stored in ($A950)
 
 $C5E7 LD A,($C4B0)  ;??? example: 0
       DEC A
@@ -4035,48 +4049,49 @@ $C5E7 LD A,($C4B0)  ;??? example: 0
       LD HL,$C4AF   ;player's sprite number (step number)
       LD A,($C4BF)  ;current jumping/falling frame
       AND A
-      JR NZ,$C611   ;if not 0, then go to handle jumping/falling
+      JR NZ,$C611   ;if not 0, then go to handle keys while jumping/falling
 
 ;we are not jumping or falling down
       LD A,($C4B3)  ;currently pressed keys
       BIT 2,A       ;check 'sit down' button
       JR Z,$C611    ;go if not
-      AND $03       ;mask
-      JR Z,$C60D
-      CP $03
-      JR Z,$C60D
-      RES 7,(HL)
+      AND $03       ;mask which will keep only keys 'left' and 'right'
+      JR Z,$C60D    ;if neither 'left' nor 'right' are pressed, go just make it sit
+      CP $03        ;check if both directions are pressed sumultaneously
+      JR Z,$C60D    ;if yes, go just make it sit
+      RES 7,(HL)    ;set direction to right
       DEC A
-      JR Z,$C60D
-      SET 7,(HL)
+      JR Z,$C60D    ;and keep it, if only 'right' key was pressed
+      SET 7,(HL)    ;otherwise, set direction to left
 ;'sit down' key was pressed
-$C60D SET 6,(HL)    ;set the flag
+$C60D SET 6,(HL)    ;set the 'sit' flag
       JR $C651
 
-;we are normal and sit down is not pressed, or we are jumping, or falling down
+;we are either normal and sit down is not pressed, or we are jumping, or falling down
 $C611 LD DE,($C3AA) ;coords of player on screen
-      LD BC,$1818
+      LD BC,$1818   ;player sprite width and height, used by collision detection proc $C858
       LD A,($C4B3)  ;currently pressed keys
-      AND $03
-      JR NZ,$C627
+      AND $03       ;mask to keep only keys 'left' and 'right'
+      JR NZ,$C627   ;go if some of them are pressed
 $C61F LD A,(HL)     ;since HL has $C4AF, load player's sprite number (step number)
-      AND $80       ;mask all except bit 7 (it's a direction left/right bit)
-      OR $03        ;and set bits 0 and 1 (this step number is used for jumping)
+      AND $80       ;clean all except bit 7 (it's a direction left/right bit)
+      OR $03        ;and set bits 0 and 1 (this step number is used for standing still)
       LD (HL),A     ;store back
       JR $C651
+
 ;keys 'left' or 'right' are pressed
 $C627 CP $03
       JR Z,$C61F    ;go if both pressed simultaneously
       CP $02
-      JR Z,$C640    ;'left' key was pressed
+      JR Z,$C640    ;go if 'left' key was pressed
 ;key 'right' was pressed
       LD A,(HL)     ;player's sprite number (step number)
-      INC A         ;increment
-      AND $07       ;mask
+      INC A         ;increment (makes player to step)
+      AND $07       ;mask, so direction bit has value 'right'
       LD (HL),A     ;put back
       INC D
-      INC D         ;increment horizontal coord twice
-$C636 CALL $C858    ;scan blockset
+      INC D         ;increment horizontal coord twice, it is an arg for $C858
+$C636 CALL $C858    ;scan blockset, check if we hit the wall
       JR NZ,$C651   ;if there is something, we can't move right, go to check jump/fall
 $C63B CALL $C924    ;move screen to the right
       JR $C651      ;and go to check jump/fall
@@ -4084,43 +4099,46 @@ $C63B CALL $C924    ;move screen to the right
 $C640 LD A,(HL)     ;player's sprite number
       INC A         ;increment (makes player to step)
       AND $07       ;mask
-      OR $80        ;facing left
+      OR $80        ;set facing left
       LD (HL),A     ;store back
       DEC D         ;decrement horizontal coord
-      DEC D         ;twice
+      DEC D         ;twice, it is an arg for $C858
 $C649 CALL $C858    ;scan blockset, check if we hit the wall
       JR NZ,$C651   ;if hit the wall, we can't move to the left, go to check jump/fall
 $C64E CALL $C950    ;move screen to the left
+
 $C651 CALL $C819    ;coordinate calculation
-      LD A,($C4BF)  ;?? current jumping frame ?? when player is jumping, value is, for example, $0B
+
+$C654 LD A,($C4BF)  ;current jumping/falling frame
       AND A
-      JR Z,$C6C5    ;go there if we are not jumping or falling down
+      JR Z,$C6C5    ;go there if we are not already jumping or falling down
       BIT 7,A       ;check if we are jumping or falling
       JP NZ,$C6D1   ;go there if falling
 ;player is jumping
       LD E,A        ;goes here if jump
-      LD D,$00
+      LD D,$00      ;turn jump frame into offset, stored in reg DE
 $C662 LD HL,$C5CA   ;base address of speed table??
       ADD HL,DE     ;add offset
       LD A,(HL)     ;read value from table - vertical speed ??
       CP $FF        ;check for special value - end of jump speed table
       JR NZ,$C673
       LD A,$80      ;we start falling - bit 7 is set, other bits are 0
-      LD ($C4BF),A  ;save
-      JP $C6D1
-$C673 LD DE,($C3AA) ;coords
+      LD ($C4BF),A  ;save as jump/fall frame
+      JP $C6D1      ;go to handle falling
+;so, we are in jump
+$C673 LD DE,($C3AA) ;coords of player on a screen
       PUSH AF       ;save jumping frame value
       SUB E
       NEG           ;subtract vertical speed from vertical coord, player goes up
       LD E,A        ;this is new vertical coord
       LD BC,$1818   ;rectangle size
       CALL $C858    ;scan level's blockset
-      JR NZ,$C6B2
+      JR NZ,$C6B2   ;go if there is a collision
       LD HL,$C4BF
       INC (HL)      ;increment jumping frame
       POP AF        ;restore jumping speed
       LD B,A        ;copy here
-      LD DE,($C3AA) ;coords
+      LD DE,($C3AA) ;coords of player on a screen
       SUB E
       NEG           ;substract speed from vertical coord
       CP $38        ;compare coord to this value
@@ -4132,11 +4150,11 @@ $C69A RET
 $C69B PUSH BC       ;save loop counter
       CALL $C991    ;move visible screen up
       POP BC        ;restore loop counter
-      JR Z,$C6A6
+      JR Z,$C6A6    ;go there if can't move screen up, since reached top of the map
       DEC B         ;decrement loop counter once
       DJNZ $C69B    ;decrement second time and loop
 $C6A5 RET
-$C6A6 LD DE,($C3AA) ;get coords
+$C6A6 LD DE,($C3AA) ;get player coords on a screen
       LD A,E
       SUB B
       LD E,A        ;subtract speed from coord
@@ -4147,6 +4165,7 @@ $C6B2 POP AF        ;restore vertical speed
       DEC A
       DEC A         ;decrement vertical speed twice
       JR NZ,$C673   ;more carefully check if hit the ceiling
+;that's it, we hit the ceiling
       LD A,($C4BF)  ;current jumping frame
       SUB $0D
       NEG           ;dec from $0D
@@ -4155,26 +4174,26 @@ $C6B2 POP AF        ;restore vertical speed
 $C6C3 JR $C6D1      ;go to handle falling down
 
 ;we are not currently jumping or falling down
-$C6C5 LD DE,$0000
+$C6C5 LD DE,$0000   ;initial jump frame in case we start jumping
       LD A,($C4B3)  ;currently pressed keys
-      AND $08       ;??
-      JP NZ,$C662   ;?? go if 'jump' key is pressed ??
+      AND $08       ;check if 'jump' key is pressed
+      JP NZ,$C662   ;go if 'jump' key is pressed, reg DE=$0000 contains initial jump frame
 ;will test if we came off the cliff and should start falling down
       XOR A         ;to check if we should start falling down, have fall down frame $00
 ;if we come here when we are falling, then reg A will contain value from ($C4BF) - fall down frame
 $C6D1 AND $7F       ;mask, we don't need bit 7
       LD E,A
-      LD D,$00
-      LD HL,$C5D8   ;??? base address, fall down speed table ???
-      ADD HL,DE     ; add offset
-      LD A,(HL)     ; ?? read fall down speed ?? example value for frame $00: $02
-      CP $FF        ;special value
+      LD D,$00      ;make it as offset
+      LD HL,$C5D8   ;base address, fall down speed table
+      ADD HL,DE     ;add offset
+      LD A,(HL)     ;read fall down speed. example value for frame $00: $02
+      CP $FF        ;special value: end of table. Previous entry will be used
       JR NZ,$C6E5
       DEC HL        ;decrement table pointer
       LD A,(HL)     ;read value
       LD HL,$C4BF
       DEC (HL)      ;decrement current frame
-$C6E5 LD DE,($C3AA) ; ?? coords ??
+$C6E5 LD DE,($C3AA) ;player coords on a screen
       PUSH AF       ;save speed
       ADD A,E       ;add to vertical coordinate
       LD E,A
@@ -4187,18 +4206,18 @@ $C6EF CALL $C858    ;scan rectangle, check if we hit the ground (there are block
       LD ($C4BF),A
       POP AF        ;restore speed
       LD B,A        ;copy speed here
-      LD DE,($C3AA) ;??coords??
-      ADD A,E       ;add coord
+      LD DE,($C3AA) ;player coords on a screen
+      ADD A,E       ;add speed to vertical coord
       CP $59        ;check this special value
-      JR NC,$C70E   ;jump if greater
-      LD E,A
+      JR NC,$C70E   ;jump if greater (on screen it means below row $59)
+      LD E,A        ;otherwise, no need to scroll down
       LD ($C3AA),DE ;save coord back
 $C70D RET
 ;we are falling, scroll screen down, falling speed is a counter loop
 $C70E PUSH BC       ;save counter
       CALL $C9CF    ;move screen down
       POP BC        ;restore counter
-      JR Z,$C719
+      JR Z,$C719    ;go if cannot move down
       DEC B         ;decrement counter once
       DJNZ $C70E    ;decrement second time and loop
 $C718 RET           ;return
@@ -4231,7 +4250,7 @@ $C740 DEC HL
       OR (HL)
       DJNZ $C740    ;loop
       POP HL        ;restore
-      AND $90       ;apply mask
+      AND $90       ;apply mask (keep bits 7 and 4)
       LD C,A        ;save result here
       LD B,D        ;restore reg B
 ;scan the same block row, accumulate if bits 6 and 5 are reset
@@ -4241,7 +4260,7 @@ $C74B DEC HL
       AND (HL)
       DJNZ $C74B    ;loop
       OR C          ;combine with prev result
-      LD E,A
+      LD E,A        ;save here
       BIT 7,E       ;check bit 7 of level blocks
       JR Z,$C760
       LD A,$02      ;death, walking over a spikes
@@ -4252,7 +4271,7 @@ $C75F RET
 $C760 BIT 6,E       ;check bit 6 of level blocks
       JR Z,$C76F
       LD A,$03
-      LD ($C4B0),A  ;?? death
+      LD ($C4B0),A  ;death, falling through water
       LD A,$01
       LD ($A25C),A  ;?? sound of death ??
 $C76E RET
@@ -4273,7 +4292,7 @@ $C785 BIT 4,(HL)
       LD (HL), A
       PUSH BC
       PUSH HL
-      CALL $C79E    ;?? calculate block coordinates in pixels for current screen ??
+      CALL $C79E    ;calculate block coordinates in pixels for current screen, HL -> H,L
       CALL $C7EC    ;turn level block into colliding object
       POP HL
       POP BC
@@ -4284,50 +4303,51 @@ $C795 INC HL
 $C79D RET
 
 --------------
-;$C79E: ?? calculate block coordinates in pixels for current screen ?? - $C7D7
-
-param: HL, block address
+;$C79E: calculate block coordinates in pixels for current screen - $C7D7
+;
+;param: HL, block address
+;result: H: horizontal pixel coord, L: vertical pixel coord
 
 $C79E LD DE,$9D72   ;start of level
       AND A
-      SBC HL,DE     ;substract from block's address, get index of given block from the beginning
+      SBC HL,DE     ;substract from block's address, gives index of given block from the beginning
       LD DE,$001E   ;width of level, in blocks
       LD C,$FF      ;row counter
 $C7A9 SBC HL,DE     ;substract width
       INC C         ;inc row counter
       JR NC,$C7A9
 
-C7AE: ADD HL,DE
-C7AF: LD DE,($C4E8) ;coords in blocks
-C7B3: LD A,($C4E4)  ;shift
-C7B6: LD B, A
-C7B7: LD A, C
-C7B8: SUB E
-C7B9: ADD A, A
-C7BA: ADD A, A
-C7BB: ADD A, A
-C7BC: ADD A, A
-C7BD: ADD A, $0C
-C7BF: SUB B
-C7C0: LD C, A
-C7C1: LD A, ($C4E5)
-C7C4: LD B, A
-C7C5: LD A, L
-C7C6: SUB D
-C7C7: ADD A, A
-C7C8: ADD A, A
-C7C9: ADD A, A
-C7CA: LD D, A
-C7CB: ADD A, A
-C7CC: ADD A, A
-C7CD: ADD A, D
-C7CE: ADD A, $18
-C7D0: SUB B
-C7D1: AND $F8
-C7D3: ADD A, $08
-C7D5: LD H, A
-C7D6: LD L, C
-C7D7: RET
+      ADD HL,DE     ;since last substraction resulted with underflow, revert it, HL has column num
+      LD DE,($C4E8) ;coords in blocks
+      LD A,($C4E4)  ;vertical shift
+      LD B,A        ;store here
+      LD A,C        ;reg A has row of requested block
+      SUB E         ;substract row of top visible block, reg A has visible row number for requested block
+      ADD A,A
+      ADD A,A
+      ADD A,A
+      ADD A,A       ;reg A = reg A * 16, since row height is 16 pixels
+      ADD A,$0C     ; ??
+      SUB B         ;substract vertical shift
+      LD C,A        ;store here
+      LD A,($C4E5)  ;horizontal shift
+      LD B,A        ;store here
+      LD A,L        ;reg A has column of requested block
+      SUB D         ;substract column of left visible block, reg A has visible column number for requested block
+      ADD A,A
+      ADD A,A
+      ADD A,A       ;reg A = reg A * 8
+      LD D,A        ;store here
+      ADD A,A
+      ADD A,A       ;reg A = original reg A * 32
+      ADD A,D       ;reg A = original reg A * 40, since block is 40 pixels wide
+      ADD A,$18     ;??
+      SUB B         ;substract horizontal shift
+      AND $F8       ;?? mask, clear 3 low bits
+      ADD A,$08     ;??
+      LD H,A        ;store here horizontal pixel coord for block
+      LD L,C        ;put here vertical pixel coord for block
+$C7D7 RET
 
 --------------
 ;$C7D8: ?? - $C7EB
@@ -4347,50 +4367,50 @@ C7EB: RET
 
 --------------
 ;$C7EC: We just hit the destructible level block, turn it into colliding object - $C818
-;Param: HL - ?coords of block?
+;Param: HL - coords of block in pixels, reg H has horizontal coord, reg L has vertical coord
 
-$C7EC EX DE,HL
+$C7EC EX DE,HL      ;put coords in DE
       LD HL,$C3B5   ;list of visible colliding objects
       LD BC,$000C   ;list entry size
-$C7F3 LD A,(HL)     ;read status byte
+$C7F3 LD A,(HL)     ;read status byte for entry
       AND A
       JR Z,$C7FA    ;if 0, we found a free entry
-      ADD HL,BC     ;move to next list entry
+      ADD HL,BC     ;otherwise, move to next list entry
       JR $C7F3      ;loop
 $C7FA LD A,$C8      ;?? some constant
-      LD (HL),A     ;write here
+      LD (HL),A     ;base+0, write here
       INC HL
-      LD (HL),E     ;coord
+      LD (HL),E     ;base+1, vertical coord
       INC HL
-      LD (HL),D     ;coord
+      LD (HL),D     ;base+2, horizontal coord
       INC HL
-      LD (HL),$04   ;??
+      LD (HL),$04   ;base+3, ??
       INC HL
       INC HL
-      LD (HL),$4A   ;??
+      LD (HL),$4A   ;base+5 ??
       INC HL
-      LD A,($C4B8)  ;??
+      LD A,($C4B8)  ;?? depending on this value
       AND A
-      LD A,$45
+      LD A,$45      ;?? either this will be written
       JR Z,$C813
-      LD A,$41
-$C813 LD (HL),A     ;
+      LD A,$41      ;?? or this will be written
+$C813 LD (HL),A     ;base+6, write
       LD HL,$C4BA   ;counter of dynamic visible objects
       INC (HL)      ;increment
 $C818 RET
 
 --------------
-$C819: Coord calculation - $C857
+;$C819: Coord calculation - $C857
 
-based on values of ($C4EA), ($C4EC), ($C4ED), ($C4EB), ($C4E9), ($C4E8)
-updates values in ($C4E4), ($C4E0), ($C4E2)
+;based on complex horizonal coord ($C4E9)+($C4EC)+($C4EA) and complex vertical coord ($C4E8)+($C4ED)+($C4EB)
+;updates full horizontal coord ($C4E0), full vertical coord ($C4E2) and ?? values in ($C4E4)
 
-$C819 LD A,($C4EC)  ;horizontal shift in 8-pixel bytes to the left
+$C819 LD A,($C4EC)  ;horizontal shift in 8-pixel bytes to the left, values from 0 till 4, since block is 5 bytes wide
       ADD A,A
       ADD A,A
       ADD A,A       ;*8
-      LD H,A
-      LD A,($C4EA)  ;horizontal shift in pixel pairs
+      LD H,A        ;store in reg H
+      LD A,($C4EA)  ;horizontal shift in pixel pairs, values from 0 till 3
       ADD A,A       ;*2
       ADD A,H       ;add
       LD D,A        ;into reg D
@@ -4430,18 +4450,19 @@ $C857 RET
 
 --------------
 
-$C858 - Convert screen rectangle to rectanglular blockset and scan it - $C8CC
+;$C858 - Convert screen rectangle to rectanglular blockset and scan it - $C8CC
 
-reg D - horizontal coord in pixels of left border of rectangle, from left border of screen
-reg E - vertical coord in pixels of upper border of rectangle, from top border of screen
-reg B - width of rectangle in pixels
-reg C - height of rectangle in pixels
+;reg D - horizontal coord in pixels of left border of rectangle, from left border of screen
+;reg E - vertical coord in pixels of upper border of rectangle, from top border of screen
+;reg B - width of rectangle in pixels
+;reg C - height of rectangle in pixels
 
+;returns: HL - block address
+;B,C - blockset width and height in blocks
+;A and flags, NZ if blockset is not empty
 
-returns: HL - block address
-B, C - blockset width and height in blocks
-A and flags
-
+;calculate vertical coord of upper part of blockset in blocks, from upper visible block, in reg E
+;and height of blockset, in blocks, in reg C
 $C858 LD A,($C4E4)  ;vertical shift of upper visible blocks in pixels from border of a screen
       LD L,$0F      ;mask value
       ADD A,E       ;add vertical pixel coord
@@ -4452,7 +4473,7 @@ $C858 LD A,($C4E4)  ;vertical shift of upper visible blocks in pixels from borde
       RRA           ;rotate 4 times to the right
       AND L         ;mask, keep low 4 bits (so div by 16, gives coord in blocks, since each block is 16 pixels high)
       DEC A         ;dec
-      LD E,A        ;save this result (vertical coord in blocks)
+      LD E,A        ;save this result (vertical coord in blocks of top of blockset)
       LD A,H        ;restore saved value
       AND L         ;mask, keep low 4 bits
       ADD A,C       ;add height of rectangle
@@ -4463,7 +4484,10 @@ $C858 LD A,($C4E4)  ;vertical shift of upper visible blocks in pixels from borde
       RRA           ;rotate 4 times
       AND L         ;mask, keep low 4 bits
       INC A         ;inc
-      LD C,A        ;save this result (height of blockset)
+      LD C,A        ;save this result (height of blockset, in blocks)
+
+;calculate horizontal coord of left border of blockset in block, from left visible block, in reg D
+;and width of blockset, in blocks, in reg B
       LD H,$28      ;init H, width of block in pixels $28 = 5*8
       LD A,($C4E5)  ;horizontal shift of left visible block from border of a screen
       ADD A,D       ;add horizontal pixel coord
@@ -4473,37 +4497,39 @@ $C858 LD A,($C4E4)  ;vertical shift of upper visible blocks in pixels from borde
 $C87D JR $C883
 $C87F SUB $18
       JR C,$C89D
-$C883 INC D
-      SUB H
-      JR C, $C89D
-      INC D
-      SUB H
-      JR C, $C89D
-      INC D
-      SUB H
-      JR C, $C89D
-      INC D
-      SUB H
-      JR C, $C89D
-      INC D
-      SUB H
-      JR C, $C89D
-      INC D
-      SUB H
-      JR C, $C89D
-      INC D
-      SUB H
-$C89D ADD A,H
-      ADD A,B
-      DEC A
-      LD B,$01
-      SUB H
-      JR C,$C8A6
-      INC B
-$C8A6 LD HL,($C4E8) ;coords of upper visible labyrinth block
+$C883 INC D         ;increment horizontal coord in blocks
+      SUB H         ;decrement coord in pixels by width of block
+      JR C,$C89D
+      INC D         ;increment horizontal coord in blocks
+      SUB H         ;decrement coord in pixels by width of block
+      JR C,$C89D
+      INC D         ;increment horizontal coord in blocks
+      SUB H         ;decrement coord in pixels by width of block
+      JR C,$C89D
+      INC D         ;increment horizontal coord in blocks
+      SUB H         ;decrement coord in pixels by width of block
+      JR C,$C89D
+      INC D         ;increment horizontal coord in blocks
+      SUB H         ;decrement coord in pixels by width of block
+      JR C,$C89D
+      INC D         ;increment horizontal coord in blocks
+      SUB H         ;decrement coord in pixels by width of block
+      JR C,$C89D
+      INC D         ;increment horizontal coord in blocks
+      SUB H         ;decrement coord in pixels by width of block
+;at this point reg A contains negative value
+$C89D ADD A,H       ;add back width of block in pixels
+      ADD A,B       ;add width of rectangle
+      DEC A         ;dec by one pixel
+      LD B,$01      ;default width of blockset is 1 block
+      SUB H         ;substract width of block
+      JR C,$C8A6    ;if again we got negative value, then width of blockset is 1 block
+      INC B         ;otherwise, width of blockset is 2 blocks
+
 ;at this point reg B and reg C contain width and heigth of blockset in blocks
 ;reg D and reg E should contain horizontal and vertical number of blocks from upper left visible block
-$C8A9 CALL $C8CD    ;calculate block's address, returns in HL
+$C8A6 LD HL,($C4E8) ;coords of upper visible labyrinth block
+$C8A9 CALL $C8CD    ;calculate block's address, returns in HL, regs BC are preserved
       LD E,$00      ;initial value for scanning a blockset ($00)
       LD D,B        ;inner loop counter value
       LD A,C        ;save reg C
@@ -4539,34 +4565,36 @@ $C8C4 JR NZ,$C8B3  ;outer loop
 $C8CC RET
 
 --------------
-$C8CD: Calculate address of block - $C8E0
-
-Params: H,D - horizontal coords in blocks ,L,E - vertical coords in blocks
-Returns: block address in HL
+;$C8CD: Calculate address of block - $C8E0
+;
+;Params: H,D - horizontal coords in blocks, L,E - vertical coords in blocks
+;Returns: block address in HL
 
 $C8CD LD A,L
       ADD A,E
-      ADD A,A      ;A = (L + E)*2
+      ADD A,A      ;A = (L + E)*2, we need to *2 since each addr takes 2 bytes
       LD L,A       ;to L
       LD A,H
       ADD A,D      ;A = H + D
       LD H,0       ;H to 0
       LD DE,$C8E1  ;table base
-      ADD HL,DE    ;add vertical coords as offset
+      ADD HL,DE    ;add doubled vertical coords as offset
       LD E,(HL)
       INC HL
       LD D,(HL)    ;DE contains two bytes from table: address of leftmost block for given vertical coords
       LD L,A
-      LD H,0       
+      LD H,0       ;reg HL now contains sum of horizontal coords
       ADD HL,DE    ;add horizontal coords to get block's address
 $C8E0 RET
 --------------
-$C8E1: Table with precalculated addresses of leftmost blocks - $C920
-       values: $9D72,$9D90,$9DAE,$9DCC. diff - 1E
-       Total 129 pair of bytes
+;$C8E1: Table with precalculated addresses of leftmost blocks - $C920
+;       values: $9D72,$9D90,$9DAE,$9DCC. diff - 1E
+;       Total 129 pair of bytes
 
 --------------
-$C924: Horizontal move of visible screen to the right - $C94D
+;$C924: Horizontal move of visible screen to the right - $C94D
+;moves by one pixel pair
+;updates complex horizonal coord stored in vars ($C4E9)+($C4EC)+($C4EA)
 
 $C924 LD HL,($C4E8)
       LD A,H            ;horizontal coord in level blocks
@@ -4588,17 +4616,53 @@ $C924 LD HL,($C4E8)
       XOR A
       LD ($C4EC),A      ;reset shift in bytes to 0
       INC H
-      LD ($C4E8),HL     ;increment horizontal coord in pixels
+      LD ($C4E8),HL     ;increment horizontal coord in level blocks
 $C94F RET
 
 --------------
-$C950: Horizontal move of visible screen to the left - $C990
+;$C950: Horizontal move of visible screen to the left - $C990
+;moves by one pixel pair
+;updates complex horizonal coord stored in vars ($C4E9)+($C4EC)+($C4EA)
 
-
+$C950 LD HL,($C4E8)     ;horizontal coord in level blocks
+      LD A,($C4EC)      ;horizonal shift in bytes
+      LD D,A
+      LD A,($C4EA)      ;horizontal shift in pixel pairs
+      LD E,A
+      OR D
+      OR H
+      RET Z             ;do nothing if all of them are 0
+      LD A,($C4E6)      ;horizontal movement if screen since last time, in pixels
+      ADD A,$02         ;increment
+      LD ($C4E6),A      ;store back
+      LD A,E            ;horizontal shift in pixel pairs
+      DEC A             ;decrement
+      AND $03           ;mask, so underflow makes it 3
+      LD ($C4EA),A      ;store back
+      CP $03            ;check if it was not 0
+      RET NZ            ;if it was not, just exit
+      LD A,D            ;otherwise, we need to decrement shift in bytes
+      DEC A
+      LD ($C4EC),A      ;store it back
+      CP $FF            ;check it was not 0
+      RET NZ            ;just exit if it was not 0
+      LD A,$04          ;instead of underflow, use this value
+      LD ($C4EC),A      ;store horizontal shift in bytes
+      DEC H             ;and decrement horizontal coord in blocks
+      LD ($C4E8),HL     ;store back
+      CP $FF            ;check that it was not 0
+      RET NZ            ;exit if it was not 0
+      LD H,$00
+      LD ($C4E8),HL     ;if it was 0, then jus overwrite all coords with 0
+      LD A,H
+      LD ($C4EA),A
+      LD ($C4EC),A
+$C990 RET               ;and exit
 --------------
-$C991: Vertical move of visible screen up, all content go down - $C9CE
-
-Updates values in ($C4E8), ($C4ED), ($C4EB), ($C4E7)
+;$C991: Vertical move of visible screen up, all content goes down - $C9CE
+;moves by one pixel pair
+;Updates complex vertical coord stored in vars ($C4E8)+($C4ED)+($C4EB)
+;also updates ($C4E7)
 
 $C991 LD HL,($C4E8)     ;coords of upper left visible block in blocks
       LD A,($C4ED)      ;number of line-pairs in second slice
@@ -4613,21 +4677,21 @@ $C991 LD HL,($C4E8)     ;coords of upper left visible block in blocks
       LD ($C4E7),A      ;store back
       LD A,E            ;number of line-pairs in top slice
       DEC A             ;dec
-      AND $03           ;mask, keep two bits, since the value is 0-4
+      AND $03           ;mask, keep two bits, since the value is 0-3
       LD ($C4EB),A      ;write back
-      CP $03
-      RET NZ
+      CP $03            ;check if it was 0
+      RET NZ            ;exit if it was not 0
       LD A,D            ;number of line-pairs in second slice
       XOR $04           ;flip bit 3
       LD ($C4ED),A      ;write back
-      CP $04
-      RET NZ
+      CP $04            ;check if it was 0
+      RET NZ            ;exit if it was not
       DEC L             ;decrement coord in blocks
       LD ($C4E8),HL     ;write back
       LD A,L
-      CP $FF            ;check overflow?
-      RET NZ
-      LD L,$00          ;this value in case of overflow
+      CP $FF            ;check underflow
+      RET NZ            ;exit if there were no underflow
+      LD L,$00          ;if there was underflow, put 0 to all coords
       LD ($C4E8),HL
       LD A,L
       LD ($C4EB),A
@@ -4635,14 +4699,15 @@ $C991 LD HL,($C4E8)     ;coords of upper left visible block in blocks
 $C9CE RET
 
 --------------
-$C9CF: Vertical move of visible screen down, all content go up - $C9F5
-
-Updates values in ($C4E8), ($C4ED), ($C4EB), ($C4E7)
+;$C9CF: Vertical move of visible screen down, all content go up - $C9F5
+;moves by one pixel pair
+;Updates complex vertical coord stored in vars ($C4E8)+($C4ED)+($C4EB)
+;also updates ($C4E7)
 
 $C9CF LD HL,($C4E8)     ;coords of upper left visible block in blocks
       LD A,L            ;vertical coord in blocks
-      CP $18            ;??
-      RET Z             ;
+      CP $18            ;?? height of level in blocks ?
+      RET Z             ;don't move down if reached this value ($18)
       LD A,($C4E7)      ;vertical movement of screen since last time, in pixels
       SUB $02           ;decrement by 2
       LD ($C4E7),A      ;write back
@@ -4650,14 +4715,14 @@ $C9CF LD HL,($C4E8)     ;coords of upper left visible block in blocks
       INC A             ;increment
       AND $03           ;mask
       LD A,($C4EB),A    ;write back
-      RET NZ            ;return, nothing more to update
+      RET NZ            ;if it is not 0, then return, nothing more to update
       LD A,($C4ED)      ;number of line-pairs in second slice
       XOR 4             ;flip bit 3
       LD ($C4ED),A      ;write back
       RET NZ            ;return nothing more to update
-      INC L             ;increment vertical coord
-      LD ($C4E8),HL     ;write bacl
-      RET
+      INC L             ;increment vertical coord in blocks
+      LD ($C4E8),HL     ;write back
+$C9F5 RET
 
 --------------
 $C9F6: Draw dynamic objects - $CA2D (+1)
