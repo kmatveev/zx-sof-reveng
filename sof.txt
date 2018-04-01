@@ -1,78 +1,78 @@
-Soldier of Fortune - disassembly
+;Soldier of Fortune - disassembly
 
-Interrupts: IM2, mostly switched off, sometimes are switched on
+;Interrupts: IM2, mostly switched off, sometimes are switched on
 
-<======================================>
-1. Loader. After loading calls $A000
-2. $A000. Pause. Wait for any key to be presed, then overwrites itself with 00 and jumps to $9D72
-3. $9D72. Disables interrupts, then prepares interrupt table for IM2, by filling $100 bytes, 
-starting with $FE00, by value $FD. This means that all interrupts will be handled by code located at $FDFD.
-By this address a command JP $A223 is put. Then IM2 mode is switched, but interrupts are still disabled.
-Register I is loaded with value $3F. If ROM address $1540 contains anything but $53, then $100 bytes 
-are copied from $9DAD to $A272. Finally jumps to $A132 - main game loop
+;<======================================>
+;1. Loader. After loading calls $A000
+;2. $A000. Pause. Wait for any key to be presed, then overwrites itself with 00 and jumps to $9D72
+;3. $9D72. Disables interrupts, then prepares interrupt table for IM2, by filling $100 bytes,
+;starting with $FE00, by value $FD. This means that all interrupts will be handled by code located at $FDFD.
+;By this address a command JP $A223 is put. Then IM2 mode is switched, but interrupts are still disabled.
+;Register I is loaded with value $3F. If ROM address $1540 contains anything but $53, then $100 bytes
+;are copied from $9DAD to $A272. Finally jumps to $A132 - main game loop
 
-<======================================>
+;<======================================>
 
-Video-mem:
-==========
-$4000 - $57FF - pixel data
-$5800 - $5AFF - color data
+;Video-mem:
+;==========
+;$4000 - $57FF - pixel data
+;$5800 - $5AFF - color data
 
 
-Graphics data:
-==============
-(+16357)
+;Graphics data:
+;==============
+;(+16357)
 
-right after video memory
+;right after video memory
 
-$5B00 23296 6939  (4) - Graftgold logo big
-            7067  (3) - Graftgold logo small
-$5BB0 23472 7115  (1) - Font
+;$5B00 23296 6939  (4) - Graftgold logo big
+;            7067  (3) - Graftgold logo small
+;$5BB0 23472 7115  (1) - Font
             7443  (5) - Labyrinth blocks (till 11888)
 
-$6E5E - packed levels
+;$6E5E - packed levels
 
-<======================================>
+;<======================================>
 
-$77D2 (3*1) - dagger, 4 sprites right, 4 sprites left
-$78DA (3*1) - arrow
-      (3*1) - gem, 8 sprites
-      (3*1) - super weapon
-$7B92 (3*1) - bird A, 4 sprites right, 4 sprites left
-      (3*1) - bird B
+;$77D2 (3*1) - dagger, 4 sprites right, 4 sprites left
+;$78DA (3*1) - arrow
+;      (3*1) - gem, 8 sprites
+;      (3*1) - super weapon
+;$7B92 (3*1) - bird A, 4 sprites right, 4 sprites left
+;      (3*1) - bird B
 
-            15661 (4) - cloud
-            15917 (4) - raft
-            16173 (4) - platform
-            16425 (4) - shooting block
-      33042 16685 (4) - elemental
-      33298 16941 (4) - skeleton
-      33558 (4*3) - enemy: monk, 4 sprites right, 4 sprites left
-            17965 (4) - enemy: monster
-            18733 (4) - enemy: dragon bird
-            19501 (4) - enemy: knight
-$8F12 36626 20269 (4) - rock ball
-$9612 38418 (4*3) - hero, 6 sprites right (4 steps + 1 jump + 1 crouch) + 6 sprites left
-      39922 (4*3) - blow, 4 sprites
+;            15661 (4) - cloud
+;            15917 (4) - raft
+;            16173 (4) - platform
+;            16425 (4) - shooting block
+;      33042 16685 (4) - elemental
+;      33298 16941 (4) - skeleton
+;      33558 (4*3) - enemy: monk, 4 sprites right, 4 sprites left
+;            17965 (4) - enemy: monster
+;            18733 (4) - enemy: dragon bird
+;            19501 (4) - enemy: knight
+;$8F12 36626 20269 (4) - rock ball
+;$9612 38418 (4*3) - hero, 6 sprites right (4 steps + 1 jump + 1 crouch) + 6 sprites left
+;      39922 (4*3) - blow, 4 sprites
 
------------------------------
-$9D72 - $A132: Temp area.
-Used for:
-  * to create level's sprite set
-  * to store unpacked map of current level. Each block takes 1 byte, each level row is $1E blocks wide
+;-----------------------------
+;$9D72 - $A132: Temp area.
+;Used for:
+;  * to create level's sprite set
+;  * to store unpacked map of current level. Each block takes 1 byte, each level row is $1E blocks wide
 
------------------------------
+;-----------------------------
 
-$A132: Main loop - $A1F9 (+2 bytes)
+;$A132: Main loop - $A1F9 (+2 bytes)
 
 
-$A132 CALL $E576  ;poop for menu,demo and high score table, exists when start key is pressed
+$A132 CALL $E576  ;loop for menu,demo and high score table, exits when start key is pressed
 $A139 CALL $A47B  ;prepare game screen (and print "get ready")
 $A13C XOR A
-$A13D LD ($C4B1), A
+$A13D LD ($C4B1),A
 $A140 CALL $A58D  ;init graphics for new level
 
-;$A143 - $A1F9 (+2 байта) - main loop of game itself
+;$A143 - $A1F9 (+2 bytes) - main loop of game itself
 $A143 CALL $A6C8  ;init data for new level
 $A146 LD SP,$0000
       CALL $A25F  ;play sound or wait
@@ -153,8 +153,8 @@ $A1F3 JP C, $A146
 $A1F6 CALL $A887
 $A1F9 JP $A132
 
------------------------------
-$A1FC - проверка паузы? - $A222
+;-----------------------------
+;$A1FC - проверка паузы? - $A222
 
 $A1FC LD A,$22       ;код клавиши P ?
       CALL $C5AF     ;проверяем нажатие
@@ -163,8 +163,8 @@ $A1FC LD A,$22       ;код клавиши P ?
 $A222 RET
  
 
-<======================================>
-$A223: Обработчик прерывания - $A22E
+;<======================================>
+;$A223: Обработчик прерывания - $A22E
 
 $A223 PUSH AF         ;сохраняем регистры, которые будут меняться
 $A224 LD A,$3F
@@ -180,7 +180,7 @@ $A22E RET             ;выход из прерывания
 
 ;$A241: Keyboard query - $A25B(+2)
 
-??? В зависимости от 5-го бита ячейки $C4B3 опрашивает или нет пробел. Возврат - в флаге Z ???
+;??? В зависимости от 5-го бита ячейки $C4B3 опрашивает или нет пробел. Возврат - в флаге Z ???
 
                     ;read port $BFFE (checks space?)
 $A248 EX AF, AF'
@@ -190,12 +190,12 @@ $A24D LD B, A       ;Копирует в B значение, считанное из порта
 $A24E LD A,($C4B3)
 ...
 
-----------------------
+;----------------------
 ;Variables:
 
 ;$A25C (1) : sound to play
 ;$A25E (1)
-----------------------
+;----------------------
 
 ;$A25F: Play sound or wait - $A271
 
@@ -298,7 +298,13 @@ $A395 OUT (C),D     ;
 $A397 RET           ;ret
 
 ;----------------------
-;$A44C: Screen scroll if we are riding a platform, or falling down - $A479 (+2)
+;$A44C: Ensure that screen is vertically aligned after falling down - $A479 (+2)
+;when walking, screen is always aligned, so ($C4B6) is 0.
+;when jumping, falling or riding a platform, we do nothing here
+;at the end of falling, when we have determined that we are hitting a ground,
+;then some alignment may be needed here
+;if vertical shift is 2, then we, actually, need to scroll two times,
+;but we scroll only once at time, and next call to this procedure will scroll once more
 
 $A44C LD A,($C4BF)  ;get jumping/falling frame
       LD B,A
@@ -307,11 +313,12 @@ $A44C LD A,($C4BF)  ;get jumping/falling frame
       RET NZ        ;ret if at least one of them is not 0
       LD A,($C4EB)  ;vertical shift
       AND A
-      RET Z         ;ret if 0
-      DEC A         ;dec
-      JR Z,$A469    ;if became 0, go
-      DEC A         ;dec again
-      JR Z,$A472    ;if became 0, go
+      RET Z         ;ret if vertical shift is 0
+      DEC A
+      JR Z,$A469    ;go there if vertical shift is 1
+      DEC A         ;
+      JR Z,$A472    ;go there if vertical shift is 2
+                    ;continue if vertical shift is 3
 $A460 CALL $C9CF    ;move screen down
       LD HL,$C3AA   ;vertical coord of player in pixels
       DEC (HL)      ;dec it
@@ -322,10 +329,10 @@ $A469 CALL $C991    ;move screen up
       INC (HL)      ;increment
       INC (HL)      ;increment
 $A471 RET
-$A472 LD A,($C3AA)  ;vertical coord
+$A472 LD A,($C3AA)  ;depending on vertical coord, we decide to scroll up or down
       CP $58        ;compare
-      JR C,$A469
-$A479 JR $A460
+      JR C,$A469    ;go if less
+$A479 JR $A460      ;go if not less
 
 ;----------------------
 ;$A47B: prepare a game screen - $A4DB (and falls further)
@@ -384,27 +391,27 @@ $A4D6 LD ($C397),A  ;number of message, arg for $C1B5
 $A4D9 CALL $C1B5    ;print the message
 ;execution falls to fixed length pause
 
-----------------------
+;----------------------
 $A4DC: fixed length pause - $A4DF
 sets pause values in A,B,C, then falls to $A4E1
 
-----------------------
-$A4E1: Pause - $A4EA:
+;----------------------
+;$A4E1: Pause - $A4EA:
 
-time delay value - A,B,C
-just moves value from A to D, and falls to
+;time delay value - A,B,C
+;just moves value from A to D, and falls to
 
-$A4E2: second entry point - D,B,C
-Just empty cycles.
+;$A4E2: second entry point - D,B,C
+;Just empty cycles.
 
-----------------------
-$A4EB: Find data lists for current level - $A539 (+2)
-Input: ($C398) current level
-Output: variables ($C4D0), ($C4CC), ($C4D2), ($C4CE), ($C4CA), ($A94E)
+;----------------------
+;$A4EB: Find data lists for current level - $A539 (+2)
+;Input: ($C398) current level
+;Output: variables ($C4D0), ($C4CC), ($C4D2), ($C4CE), ($C4CA), ($A94E)
 
-$A4EB LD HL,$DE52    ;some specific area in memory
-      LD DE,$000A    ;search step
-      CALL $A832     ;search 0 in memory
+$A4EB LD HL,$DE52    ;base address of monster generation table (0-terminated) for level 1
+      LD DE,$000A    ;entry size
+      CALL $A832     ;scan and find a beginning of a list for current level
       LD ($C4D0),HL  ;store the result
 
 $A4F7 LD HL,$E28B    ;dynamic object coord/speed/time table for level 1
@@ -436,18 +443,18 @@ $A52D LD HL,$DDC5    ;teleport table for level 1
 $A539 JP $A844       ;shortcut for CALL $A844 + RET
 
 
-----------------------
-$A53С: ??? - $A58B
+;----------------------
+;$A53С: ??? - $A58B
 
-----------------------
-$A58D: Graphics init for new level ??? 
+;----------------------
+;$A58D: Graphics init for new level ???
 
 $A58D XOR A
       LD ($C397),A   ;нулевой номер сообщения
       CALL $A378     ;send some values to AY chip
       LD A,($C4B1)   ;???
       AND A          ;compare with 0
-$A598 JP NZ,$A62A    ;если не 0
+$A598 JP NZ,$A62A    ;go if not 0
 
 $A59B LD A,($C399)   ;??? current elemental
       ADD A,A
@@ -455,7 +462,7 @@ $A59B LD A,($C399)   ;??? current elemental
       LD L,A
       LD H,0         
       LD DE,$A66D    ;?????
-      ADD HL,DE      ;итого: HL=($C399)*4 + $A66D
+      ADD HL,DE      ;so: HL=($C399)*4 + $A66D
       LD DE,$C4A6
       LD BC,4
       LDIR           ;move 4 bytes
@@ -554,13 +561,13 @@ $A66C RET
 $A66D 
 
 
-----------------------
-$A67D: Draw elemental central sprite 2*2 (air, fire, ...)
+;----------------------
+;$A67D: Draw elemental central sprite 2*2 (air, fire, ...)
 
-from the rightmost part of a pixel area, which is hidden behind
-black attributes, graphics is copied into visible area horizontally
+;from the rightmost part of a pixel area, which is hidden behind
+;black attributes, graphics is copied into visible area horizontally
 
-Input param: B - line number, identifies elemental sprite
+;Input param: B - line number, identifies elemental sprite
 
 $A67D LD C,$1F       ;last column
 $A67F CALL $C2D5     ;calculate pixel area address
@@ -587,8 +594,8 @@ $A696 POP DE         ;restore DE
       JR NZ,$A68D    ;repeat
 $A69E RET            ;exit.
 
-----------------------
-$A6C8: init for new level
+;----------------------
+;$A6C8: init for new level
 
 $A6C8 LD A,($C4B8)   ;??
       AND A          ;check if 0
@@ -651,8 +658,8 @@ $A74B LD A,(HL)      ;first byte (status)
       ADD HL,BC      ;move to next structure
 A751$ JR $A74B
 
-----------------------
-$A753: Unpack level block data into area starting at $9D72 - $A769 (+2)
+;----------------------
+;$A753: Unpack level block data into area starting at $9D72 - $A769 (+2)
 
 $A753 LD HL,$6E5E    ;start of packed level data
       LD A,($C398)   ;number of current level
@@ -668,17 +675,17 @@ $A765 EX DE,HL       ;DE will point to packed data for current level
       CALL $A7A4     ;unpack low half-bytes
       JP $A7FC       ;unpack high half-bytes and return
 
-----------------------
+;----------------------
 
-$A76C: Unpack some bits and check if they are 0  - $A798
+;$A76C: Unpack some bits and check if they are 0  - $A798
 
-Params: reg C: how many bits to get. Bits are counted in descending direction (from high to low)
-        DE: memory address
-        ($C4C8) : shift accumulator
+;Params: reg C: how many bits to get. Bits are counted in descending direction (from high to low)
+;        DE: memory address
+;        ($C4C8) : shift accumulator
 
-Return values:
-        reg A - requested bits (shifted to low bits)
-        flag Z if all these bits are 0
+;Return values:
+;        reg A - requested bits (shifted to low bits)
+;        flag Z if all these bits are 0
 
 $A76C PUSH HL        ;save
       PUSH BC        ;save
@@ -718,8 +725,8 @@ $A793 DJNZ $A791     ;loop
       POP HL         ;restore
 $A798 RET
 
-----------------------
-$A799: Compare HL with value - $A7A3
+;----------------------
+;$A799: Compare HL with value - $A7A3
 
 $A799 PUSH HL
       PUSH BC
@@ -730,14 +737,14 @@ $A79E AND A
       POP HL
 $A7A3 RET
 
-----------------------
-$A7A4: Unpack low half-bytes from data pointed by DE into area $9D72 - $A7FB
+;----------------------
+;$A7A4: Unpack low half-bytes from data pointed by DE into area $9D72 - $A7FB
 
-Params: DE points to packed data
-Format:
-        1 bit - if 0 then next 3 bits define how many 0 values to write
-                if 1 then next 4 bits are value to write into memory
-                if value repeats two times, then third value is a counter to write the same value into memory
+;Params: DE points to packed data
+;Format:
+;        1 bit - if 0 then next 3 bits define how many 0 values to write
+;                if 1 then next 4 bits are value to write into memory
+;                if value repeats two times, then third value is a counter to write the same value into memory
 
 $A7A4 LD HL,$A132
       LD ($A79C),HL  ;modify code of compare proc, set limit
@@ -791,14 +798,14 @@ $A7EF LD C,$03
 $A7FA INC DE         ;exit
 $A7FB RET
 
-----------------------
+;----------------------
 
-$A7FC: Unpack high half-bytes and combine with existing memory data at $9D72 - $A830 (+2)
+;$A7FC: Unpack high half-bytes and combine with existing memory data at $9D72 - $A830 (+2)
 
-Params: DE - address to unpack from
-        HL - memory area to update
-Format: if bit 7 is 1, then set the same single high bit for a sequence of bytes
-        if bit 7 is not set, skip bytes
+;Params: DE - address to unpack from
+;        HL - memory area to update
+;Format: if bit 7 is 1, then set the same single high bit for a sequence of bytes
+;        if bit 7 is not set, skip bytes
 
 
 $A7FC LD HL,$9D72    ;address of unpack area
@@ -846,11 +853,11 @@ $A82C LD C,A
       ADD HL,BC       ;add to dest memory addr in HL
 $A830 JR $A7FF       ;back to big loop
 
-----------------------
-$A832: Find a start of an entry list for current level  - $A843
-Scans the list until first byte of list entry will be 0, which is an end indicator
-Input: HL - initial addr; DE - search step. ($C398) - current level.
-Output: HL - addr of a beginning of a list
+;----------------------
+;$A832: Find a start of an entry list for current level  - $A843
+;Scans the list until first byte of list entry will be 0, which is an end indicator
+;Input: HL - initial addr; DE - search step. ($C398) - current level.
+;Output: HL - addr of a beginning of a list
 
 $A832 LD A,($C398)   ;current level, shows how many lists should we skip
       AND A
@@ -867,8 +874,8 @@ $A83D JP $A838       ;end of inner loop
 $A841 DJNZ $A838     ;decrement B, end of outer loop
 $A843 RET          
 
-----------------------
-$A844: Memory modification, reset 7-th bit until 0 is found - $A857 (+2)
+;----------------------
+;$A844: Memory modification, reset 7-th bit until 0 is found - $A857 (+2)
 
 Input: HL - initial addr. DE - step
 
@@ -887,9 +894,9 @@ $A856 ADD HL,DE      ;add step to the addr
 $A857 JP $A844       ;repeat the loop (why not JP $A84D ?)
 
 
-----------------------
-$A85A: Clear dynamic game window - $A886
-Params: reg A - attribute value
+;----------------------
+;$A85A: Clear dynamic game window - $A886
+;Params: reg A - attribute value
 
 $A85A EX AF,AF'      ;save reg A
 
@@ -923,11 +930,11 @@ $A87D LD B, $19      ;number of attrib blocks in line
       JR NZ, $A87D   ;loop again
 $A886 RET
 
-----------------------
-$A8B5: Clear screen and draw game border - $A8D2 (+2)
-
-Game border is stored at $EBFD.
-Empty parts are packed: 0 then quantity of bytes
+;----------------------
+;$A8B5: Clear screen and draw game border - $A8D2 (+2)
+;
+;Game border is stored at ($EBFD).
+;Empty parts are packed: 0 then quantity of bytes
 
 $A8B5 XOR A          ;screen attribute will be 0
       CALL $EAEE     ;clear screen
@@ -952,9 +959,8 @@ $A8CE LD (DE),A      ;small loop to set 0 to video mem
 $A8D2 JR $A8C6       ;back to main loop
 
 
-----------------------
-
-$A8D4 ?? Decrement timer, print hurry up message ?? - $A90F
+;----------------------
+;$A8D4 ?? Decrement timer, print hurry up message ?? - $A90F
 
 $A8D4 LD A,($C4B0)   ;??
       CP $04
@@ -991,8 +997,8 @@ $A902 CALL $C1AD     ;prepare to print the message
       LD ($A25C),A   ;here ??
 $A90F RET
 
-----------------------
-$A910: Handle game status specific stuff - $A931 (+2)
+;----------------------
+;$A910: Handle game status specific stuff - $A931 (+2)
 
 $A910 LD A,($C4B0)   ;game state
       AND A          ;check if 0 - normal game state
@@ -1013,8 +1019,8 @@ $A915 DEC A
       JP Z,$AA70     ;go if status = 7
 $A931 JP $AC0F       ;go if status > 7
 
-----------------------
-$A934: Locate all level blocks with bit 5 set and put their addresses to location starting at $A952 - $A94D
+;----------------------
+;$A934: Locate all level blocks with bit 5 set and put their addresses to location starting at $A952 - $A94D
 
 $A934 LD HL,$9D72    ;current level map
       LD DE,$A952    ;will collect blocks' addresses here
@@ -1034,12 +1040,12 @@ $A947 INC HL
       JR NZ,$A93D    ;loop
 $A94D RET
 
-----------------------
-$A94E (2) : teleport table address for current level
-$A950 (2) : address of teleport block we are currently standing on
-$A952: Area to store teleport block addresses, 2 bytes for each teleport block
+;----------------------
+;$A94E (2) : teleport table address for current level
+;$A950 (2) : address of teleport block we are currently standing on
+;$A952: Area to store teleport block addresses, 2 bytes for each teleport block
 
-----------------------
+;----------------------
 ;$A96A: Teleporting - AA3A (+2)
 
 $A96A XOR A
@@ -1163,10 +1169,10 @@ AA29: LD L, A
       LD ($C4AC), HL
 AA3A: JP $A6D5
 
-----------------------
+;----------------------
 ;$AA3D: Read value from table $C39C   - $AA49
 
-Param/Var:  ($C399) - ? offset
+;Param/Var:  ($C399) - ? offset
 
 $AA3D LD A,($C399)   ;param
 $AA40 LD C,A
@@ -1177,8 +1183,8 @@ $AA47 LD A,(HL)      ;read byte
 $AA48 AND A
 $AA49 RET
 
-----------------------
-$AA52: Blink the game screen, we are teleporting - $AA6F
+;----------------------
+;$AA52: Blink the game screen, we are teleporting - $AA6F
 
 AA52: CALL $A378
 AA55: LD B, $07
@@ -1242,7 +1248,7 @@ AAB7: LD ($C3A1), A
 AABA: LD (HL), $03
 AABC: JR $AAC1
 
-----------------------
+;----------------------
 ;$ACEB: Check if player doesn't go out of the screen - $AD2A
 
 $ACEB LD IX,$C3B5    ;colliding dynamic objects list base addr
@@ -1271,7 +1277,7 @@ $AD1D CP $60         ;compare
 $AD27 LD (IX+$03),B  ;store
 $AD2A RET
 
-----------------------
+;----------------------
 
 AD2B: LD A, ($C4C5)
 AD2E: AND A
@@ -1280,7 +1286,7 @@ AD31: DEC A
 AD32: LD ($C4C5), A
 AD35: RET
 
-----------------------
+;----------------------
 ;$ADC6: Death, fall down - $ADFA
 
 $ADC6 LD A,($C398)   ;current level
@@ -1308,8 +1314,8 @@ $ADE3 ADD A,$04      ;add to coord
       LD ($C4C4),A   ;??
 $ADFA RET
 
-----------------------
-$ADFB: Death handling - AE7A
+;----------------------
+;$ADFB: Death handling - AE7A
 
 $ADFB LD A,($C398)   ;current level
       CP $08
@@ -1372,7 +1378,7 @@ AE71: LD HL,$C4C1    ;?? dying frame
       LD ($C4C4),A   ;??
 AE7A: RET
 
-----------------------
+;----------------------
 ;$AE9C: calculate full (multiplied) strength for current weapon - $AEB5
 ;Result: reg A contains full strength for current weapon
 $AE9C LD A,($C3A0)   ;current weapon code
@@ -1395,7 +1401,7 @@ $AE9C LD A,($C3A0)   ;current weapon code
 $AEB5 RET            ;return damage in reg A
 
 
-----------------------
+;----------------------
 $AF90 ????
 
 $AF90 LD A,($C39B)   ;??
@@ -1555,8 +1561,8 @@ $B0B7 RET
 
 ----------------------
 
-----------------------
-$B118 - check fire button, create a weapon missile if needed - $B1FC
+;----------------------
+;$B118 - check fire button, create a weapon missile if needed - $B1FC
 
 $B118 LD A,($C4B0)   ;??
       CP $04
@@ -1688,7 +1694,11 @@ $B1F5 EX AF,AF'
       LD ($C4B5),A   ;and here
 $B1FC RET
 
-----------------------
+;----------------------
+;Constants, used in code below:
+; 1008, 1818
+
+;----------------------
 ;$B1FD ?? make random value ?? - $B211
 
 $B1FD PUSH HL
@@ -1705,48 +1715,52 @@ $B1FD PUSH HL
       POP HL
 $B211 RET
 
-----------------------
-;$B212 ?? Generate random monster ??
+;----------------------
+;$B212 Generate random monster, if needed - $B333
 
-B212: LD A,($C4BC)   ;???
+$B212 LD A,($C4BC)   ;delay till monster will be generated
       AND A
-      JR Z,$B21D
+      JR Z,$B21D     ;generate monster if 0
       DEC A
-      LD ($C4BC),A   ;??
+      LD ($C4BC),A   ;otherwize decrement and exit
 $B21C RET
-$B21D LD A,($C4BB)   ;??
-      CP $03
-      RET NC
-      LD A,($C4B0)   ;??
+$B21D LD A,($C4BB)   ;?? number of monsters ??
+      CP $03         ;constant, max number of monsters
+      RET NC         ;exit if greater or equals
+      LD A,($C4B0)   ;?? game state ??
       CP $06
-      RET Z
-      LD IX,($C4D0)  ;base address of something
-      LD A,(IX+$00)  ;load first byte, example value: $03
-      AND A
-      RET Z          ;exit if 0
-;this code is executed when new monster has to be generated
+      RET Z          ;don't generate monster in state 06
+
+;now we will check if we are in any monster generation area
+      LD IX,($C4D0)  ;base address of monster generation table for current level
+$B22D LD A,(IX+$00)  ;load monster type
+      AND A          ;check if we reached an end of this 0-terminated list
+      RET Z          ;exit if 0, because it's an end-of-list flag
       LD L,(IX+$02)
-      LD H,(IX+$03)  ;load in HL full horizontal coordinate
+      LD H,(IX+$03)  ;load in HL an offset from left border of level to left border of monster area in pixels
       LD DE,($C4E0)  ;horizontal coord of screen in pixels
       INC DE
-      AND A
-      SBC HL,DE      ;subtract
-      JP NC,$B2E0
+      AND A          ;just to clear CF
+      SBC HL,DE      ;subtract horizontal coord from offset
+      JP NC,$B2E0    ;go horizontal coord is less than offset, go
       LD L,(IX+$06)
-      LD H,(IX+$07)  ;load in HL another full horizontal coordinate in pixels
+      LD H,(IX+$07)  ;load in HL offset from left border of level to right border of monster area in pixels
       SBC HL,DE
-      JP C,$B2E0
+      JP C,$B2E0     ;go if coordinate is greater than offset, since we substracted coordinate from offset
       LD L,(IX+$04)
-      LD H,(IX+$05)  ;load in HL full vertical coordinate in pixels
+      LD H,(IX+$05)  ;load in HL offset from top of level till top of monster area
       LD DE,($C4E2)  ;vertical coord of screen in pixels
-      INC D
-      AND A
+      INC D          ;??
+      AND A          ;clear carry flag
       SBC HL,DE      ;subtract
-      JP NC,$B2E0
+      JP NC,$B2E0    ;go if vertical coord is less than offset
       LD L,(IX+$08)
-      LD H,(IX+$09)  ;load in HL another full vertical coordinate in pixels
+      LD H,(IX+$09)  ;load in HL offset from top of level till bottom of monster area
       SBC HL,DE      ;subtract
-      JP C,$B2E0
+      JP C,$B2E0     ;go if coordinate is greater than offset
+
+;so now we are in the area where monster can be generated
+;first, let's update random delay till next monster
 $B26A CALL $B1FD     ;?? make random value in reg A ??
       AND $1F        ;mask
       ADD A,$30
@@ -1754,302 +1768,410 @@ $B26A CALL $B1FD     ;?? make random value in reg A ??
       LD A,($C399)   ;??
       ADD A,A
       ADD A,A
-      ADD A,A       ;*8
+      ADD A,A        ;*8
       SUB H
       NEG
-      LD ($C4BC),A  ;??
-      LD HL,($C4E8) ;coordinates of upper-left visible labyrinth block
+      LD ($C4BC),A   ;delay till next monster will be generated
+
+      LD HL,($C4E8)  ;coordinates of upper-left visible labyrinth block
       DEC H
-$B282 CALL $B449
-      JR C,$B2A9
-B287: LD HL,($C4E8)
-B28A: LD A,($C4E5)
-B28D: LD B,$05
-B28F: AND A
-B290: JR NZ,$B293
-B292: DEC B
-B293: LD A,H
-B294: ADD A,B
-B295: LD H,A
-B296: CALL $B449
-B299: RET NC
-...
+$B282 CALL $B449     ;try to find suitable place for monster on the left side. Returns block address in HL, and CF=1 if found
+      JR C,$B2A9     ;go if place was found
 
-B2A9: PUSH HL
-B2AA: LD HL, ($C4E8)
-B2AD: LD A, ($C4E5)
-B2B0: LD B, $05
-B2B2: AND A
-B2B3: JR NZ, $B2B6
-B2B5: DEC B
-B2B6: LD A, H
-B2B7: ADD A, B
-B2B8: LD H, A
-B2B9: CALL $B449
-B2BC: EX DE, HL
-B2BD: POP HL
-B2BE: LD C, $00
-B2C0: JR C, $B2CF
-B2C2: LD A, ($C4E6)
-B2C5: AND A
-B2C6: JP Z, $B2FE
-B2C9: BIT 7, A
-B2CB: RET NZ
-B2CC: JP $B2FE
-B2CF: LD A, ($C4E6)
-B2D2: AND A
-B2D3: JR Z, $B2E8
-B2D5: LD C, $00
-B2D7: BIT 7, A
-B2D9: JR Z, $B2FE
-B2DB: LD C, $01
-B2DD: EX DE, HL
-B2DE: JR $B2FE
+;we got here if we were not able to find a place for monster on the left side
+$B287 LD HL,($C4E8)  ;coordinates of current top-left visible block
+      LD A,($C4E5)   ;horizontal shift of block from border of screen
+      LD B,$05       ;const, default value for number of horizontal number of blocks visible on screen (number of columns)
+      AND A          ;check if shift is 0
+      JR NZ,$B293
+      DEC B          ;if shift was 0, then decrement horizontal visible number of blocks
+$B293 LD A,H         ;
+      ADD A,B
+      LD H,A         ;add number of blocks to horizontal coorinate of top-left block, to get coord of top-right block
+$B296 CALL $B449     ;try to find suitable place for monster on the right side
+$B299 RET NC         ;exit if no luck
 
-----------------------
+;we got here if we found a place to generate a monster
+;reg HL contains upper-left block address of area for monster
+;Bug/Optimization ?? actually, a part $B2A9 - $B2B9 (+1) looks like a copy-paste from $B287,
+;and will execute same logic twice for right side
+$B2A9 PUSH HL        ;save upper-left address of empty space
+      LD HL,($C4E8)  ;get coordinates of current top-left visible block, reg H - horizontal, reg L - vertical
+      LD A,($C4E5)   ;horizontal shift
+      LD B,$05       ;const, screen width in blocks
+      AND A
+      JR NZ,$B2B6    ;no need to amend screen width in blocks if shift is not 0
+      DEC B          ;amend screen width in blocks
+$BAB6 LD A,H         ;horizontal coordinate of top-left visible block
+      ADD A,B        ;add width of visible screen in blocks
+      LD H,A         ;put here, it's a parameter for call.
+                     ;reg L still holds vertical coord for top-left visible block, which is the same for top-right block
+                     ;so now reg H and reg L hold coordinates (horizontal and vertical) for top-right visible block
+$B2B9 CALL $B449     ;try to find suitable area on right side. Coordinates returned in HL, also CF will be set if ok
+$B2BC EX DE,HL       ;save returned value in DE
+      POP HL         ;restore
+      LD C,$00       ;?? flag that monster should be generated on left side ??
+      JR C,$B2CF     ;?? go there if place for monster on right side of screen was also found ??
+      LD A,($C4E6)   ;horizontal movement of screen to the left
+      AND A          ;check if not empty
+      JP Z,$B2FE     ;go if empty
+      BIT 7,A        ;check sign, if moving left or right
+      RET NZ         ;moving right, but place for monster only to left, exit
+      JP $B2FE       ;moving left, ?? go and generate monster ??
+$B2CF LD A,($C4E6)   ;horizontal movement of screen to the left
+      AND A          ;check if not empty
+      JR Z,$B2E8     ;go if empty
+      LD C,$00       ;?? flag that monster should be generated on the left side ??
+      BIT 7,A        ;check if negative/positive
+      JR Z,$B2FE     ;go if positive, so moving to right
+      LD C,$01       ;flag that monster should be generated on the right side ??
+      EX DE,HL       ;restore suitable space for monster on the right side
+$B2DE JR $B2FE       ;go
 
-$B334 - ?
+$B2E0 LD BC,$000A    ;size of list entry
+      ADD IX,BC      ;add size to entry pointer, thus moving to next list entry
+      JP $B22D       ;loop
 
+;get a random value to choose, where (right/left) monster will be generated
+$B2E8 CALL $B1FD     ;generate a random value
+      LD C,$00
+      LD B,$08
+$B2EF RRCA
+      JR NC,$B2F3
+      INC C
+B2F3: DJNZ $B2EF
+      BIT 0,C        ;this is a selector
+      LD C,$00       ;generate monster on left side
+      JR Z,$B2FE     ;go
+      LD C,$01       ;generate monster on right side
+$B2FD EX DE,HL       ;swap monster coords between left and right sides, so right side is current
 
+;ok, monster facing is in reg C, monster coords in reg H (horizontal) and reg L (vertical)
+;checking corner cases: if we are at the left or right border of level
+$B2FE LD A,C         ;flag, generate on left or on right side
+      AND A          ;check
+      JR NZ,$B30A    ;go if generate on right
+;generate on the left case
+      LD A,($C4E9)   ;?? horizontal coord ??
+      AND A          ;check if 0
+      RET Z          ;exit if 0
+      JP $B310       ;go
+;generate on the right case
+$B30A LD A,($C4E9)   ;?? horizontal coord
+      CP $18         ;check critical value, ?? right border of level ??
+      RET NC         ;exit of greater
+
+$B310 PUSH BC        ;save left/right flag
+      CALL $C79E     ;calculate block coordinates to pixels
+                     ;now reg H: horizontal pixel coord, reg L: vertical pixel coord
+      POP BC         ;restore left/right flag
+      LD A,L         ;vertical coord
+      ADD A,$0C      ;add ?? monster height ??
+      LD L,A
+      LD A,$02
+      BIT 0,C        ;check left/right generation flag
+      JR Z,$B321
+      LD A,$DE       ;haha, it's not reg DE, but value $DE, right side of screen in pixels ??
+$B321 LD H,A         ;into reg H
+      LD A,(IX+$01)  ;?? example value: 08
+      OR C           ;combine with flag
+      LD B,A         ;into B
+      LD A,(IX+$00)  ;monster type
+      EX DE,HL       ;put into DE as argument for call ???
+      CALL $B334     ;go and generate monster
+      RET NC
+      LD HL,$C4BB    ;increment ?? this ?? number of monsters ??
+      INC (HL)
+$B333 RET
+
+;----------------------
+;$B334 - Generate monster - $B420
+;Parameters: reg A (monster type ??); reg B (monster initial facing??);
+;reg IX
+;reg D: horizontal coord on screen, in pixels
+;reg E: vertical coord on screen, in pixels
 
 $B334 LD C,A         ;transfer value through reg C
       EX AF,AF'      ;and save in A'
       LD A,C         ;now from reg C
       AND $07        ;mask
       CP $07         ;check if all low bits are 1
-      JR Z,$B39B     ;jump if no
-      LD A,($C4BA)   ;counter of dynamic objects?
+      JR Z,$B39B     ;go if no
+      LD A,($C4BA)   ;counter of dynamic objects
       AND A
       JP Z,$B39B     ;jump if 0
-      LD ($C4B7),A   ;temp copy???
+
+;so there are some dynamic objects on screen. We should check if proposed location for monster generation
+;doesn't overlap with any of existing dynamic objects
+      LD ($C4B7),A   ;loop counter, initialized with number of dynamic objects
       PUSH BC
-      PUSH DE
+      PUSH DE        ;save coords
+;we know that there are some dynamic objects. But first items may be already free, so skip them
       LD IX,$C3B5    ;colliding dynamic objects base address
 $B34D LD A,(IX+$00)  ;get fisrt byte
-      AND A
-      JR NZ,$B35B    ;
+      AND A          ;check if 0, which means that this list item is free
+      JR NZ,$B35B    ;if item occupied, go
 $B353 LD BC,$000C    ;if 0, then add structure size, move to next struct
       ADD IX,BC
-      JP $B34D
-$B35B LD B,A         ;save value
-      AND $18        ;mask
-      JR NZ,$B391    ;jump if has some bits
+      JP $B34D       ;loop
+;here reg IX points to first non-free item in list of dynamic objects
+$B35B LD B,A         ;save value of field with offset $00
+      AND $18        ;mask, keep only bits 3 and 4 (starting from 0)
+      JR NZ,$B391    ;jump if those bits are not 0
       LD A,B         ;restore
-      LD BC,$1008    ;??
-      AND $07        ;mask
-      CP $05         ;check
-      JR C,$B37F
-      LD L,(IX+$01)
+      LD BC,$1008    ;?? some constant
+      AND $07        ;?? mask again value of field with offset $00, keep 3 low bits ??
+      CP $05         ;?? check
+      JR C,$B37F     ;if less, then we don't need to check if those objects overlap, go and skip it
+$B36A LD L,(IX+$01)  ;load coords of upper-left corner of dynamic object
       LD H,(IX+$02)
-      POP DE
-      PUSH DE
-      EXX
-      LD B,(IX+$07)
-      LD C,(IX+$08)
-      EXX
-      CALL $C03D     ;check if intersects
-      JR C,$B38D
+      POP DE         ;restore screen coords of upper-left corner of proposed monster
+      PUSH DE        ;save them again, because we are in loop
+      EXX            ;temporary to alternative regs
+      LD B,(IX+$07)  ;load horizontal size in pixels of dynamic object
+      LD C,(IX+$08)  ;vertical size
+      EXX            ;back, so B'C' is a parameter for next call
+      CALL $C03D     ;check if dynamic objects, described by HL and B'C' intersects with proposed monster (DE+BC)
+      JR C,$B38D     ;if flag C is set, then they do intersect, go
 $B37F LD A,($C4B7)
       DEC A
-      LD ($C4B7),A
-      JR NZ,$B353
-      POP DE
-      POP BC
-      JP $B39B
-$B38D POP DE
-      POP BC
-      AND A
-$B390 RET
-$B391 CP $08
-$B393 JR Z, $B37F
-$B395 LD BC, $1818
-$B398 JP $B36A
+      LD ($C4B7),A   ;decrement loop counter
+      JR NZ,$B353    ;go if loop is not over
+;we got here if no one dynamic objects intersects with proposed monster
+      POP DE         ;restore monster coordinate
+      POP BC         ;restore
+      JP $B39B       ;go and generate monster
+$B38D POP DE         ;restore monster coordinate
+      POP BC         ;restore
+      AND A          ;clear carry flag to indicate that monster was not generated
+$B390 RET            ;exit
+$B391 CP $08         ;now check if only bit 3 is set, and bit 4 is 0
+      JR Z,$B37F     ;go if 0
+      LD BC,$1818    ;?? another constant
+$B398 JP $B36A       ;
 
+;add new entry into list of dynamic colliding objects
+;params: reg B, reg A',
+;reg D (horizontal coord on screen),
+;reg E (vertical coord on screen)
+$B39B EXX
+      LD HL,$C3B5    ;colliding dynamic objects base address
+      LD BC,$000C    ;size of list item
+$B3A2 LD A,(HL)      ;get flag value
+      AND A          ;check if not used
+      JR Z,$B3A9     ;go, we found empty slot
+      ADD HL,BC      ;this item slot is used, move to next list item
+      JR $B3A2
+$B3A9 PUSH HL
+      POP IX         ;item base address in reg IX
+      EXX
+      LD (IX+$01),E  ;vertical coord on screen, in pixels
+      LD (IX+$02),D  ;horizontal coord on screen, in pixels
+      LD (IX+$03),B  ;??
+      EX AF,AF'      ;restore ?? monster type ??
+      LD B,A         ;save here
+      AND $07        ;?? mask, only 3 low bytes ??
+      LD C,A         ;copy masked value here
+      LD A,B         ;restore
+      RRCA
+      RRCA
+      RRCA           ;at this point, reg A is multiplied by 8
+      AND $1F        ;?? mask, leave 5 low bytes, clear 3 high bytes ??
+      INC A
+      LD (IX+$05),A  ;??
+      LD B,$00
+      LD HL,$B421    ;?? some base address ??
+      ADD HL,BC      ;add offset, which is former reg A masked, so it is less than 8
+      LD A,(HL)      ;get value from table, example: $11
+      LD B,A         ;save here
+      AND $1F        ;?? mask
+      OR $40         ;set bit 6
+      LD (IX+$00),A  ;put here, example value: $51
+      LD A,($C4B8)   ;?? some flag, mostly 0. Maybe that boss was killed, so everything is blue ?
+      AND A          ;check if 0
+      LD A,$41       ;?? some constant, used if flag is not 0. Maybe that everything should be blue?
+      JR NZ,$B3E7    ;go if flag is not 0
+      LD A,B         ;restore value obtained from table
+      AND $1F        ;?? mask, leave only 5 lower bits??
+      LD L,A         ;and put in lower part of HL
+      LD H,$00       ;high part is 0
+      LD DE,$B429    ;?? base address of some lookup table ??
+      ADD HL,DE      ;add offset
+      LD A,(HL)      ;read value from table, example: $47
+$B3E7 LD (IX+$06),A  ;?? color of object ??
 
-B39B: EXX
-B39C: LD HL,$C3B5    ;colliding dynamic objects base address
-B39F: LD BC, $000C
-B3A2: LD A, (HL)
-B3A3: AND A
-B3A4: JR Z, $B3A9
-B3A6: ADD HL, BC
-B3A7: JR $B3A2
-B3A9: PUSH HL
-B3AA: POP IX
-B3AC: EXX
-B3AD: LD (IX+$01), E
-B3B0: LD (IX+$02), D
-B3B3: LD (IX+$03), B
-B3B6: EX AF, AF'
-B3B7: LD B, A
-B3B8: AND $07
-B3BA: LD C, A
-B3BB: LD A, B
-B3BC: RRCA
-B3BD: RRCA
-B3BE: RRCA
-B3BF: AND $1F
-B3C1: INC A
-B3C2: LD (IX+$05), A
-B3C5: LD B, $00
-B3C7: LD HL, $B421
-B3CA: ADD HL, BC
-B3CB: LD A, (HL)
-B3CC: LD B, A
-B3CD: AND $1F
-B3CF: OR $40
-B3D1: LD (IX+$00), A
-B3D4: LD A, ($C4B8)
-B3D7: AND A
-B3D8: LD A, $41
-B3DA: JR NZ, $B3E7
-B3DC: LD A, B
-B3DD: AND $1F
-B3DF: LD L, A
-B3E0: LD H, $00
-B3E2: LD DE, $B429
-B3E5: ADD HL, DE
-B3E6: LD A, (HL)
-B3E7: LD (IX+$06), A
-B3EA: LD A, B
-B3EB: LD DE, $1008
-B3EE: SRL A
-B3F0: SRL A
-B3F2: SRL A
-B3F4: AND $03
-B3F6: JR Z, $B407
-B3F8: LD DE, $1810
-B3FB: DEC A
-B3FC: JR Z, $B407
-B3FE: LD DE, $1818
-B401: DEC A
-B402: JR Z, $B407
-B404: LD DE, $1830
-B407: LD (IX+$07), D
-B40A: LD (IX+$08), E
-B40D: XOR A
-B40E: LD (IX+$04), A
-B411: LD (IX+$09), A
-B414: LD (IX+$0B), A
-B417: LD (IX+$0A), $FE
-B41B: LD HL, $C4BA
-B41E: INC (HL)
-B41F: SCF
-B420: RET
+;based on value in reg B divided by 8, we populate width and height with constants
+      LD A,B         ;restore value obtained from first table
+      LD DE,$1008    ;width and height if regB/8 = 0
+      SRL A
+      SRL A
+      SRL A          ;reg A was divided by 8
+      AND $03        ;and keep only 2 low bits
+      JR Z,$B407     ;go if 0, so constant which was prepared in DE will be used
+      LD DE,$1810    ;width and height if regB/8 = 1
+      DEC A
+      JR Z,$B407     ;go
+      LD DE,$1818    ;width and height if regB/8 = 2
+      DEC A
+      JR Z,$B407
+      LD DE,$1830    ;width and height if regB/8 = 3
+;reg D and reg E now hold one of constants for width and height
+$B407 LD (IX+$07),D  ;width in pixels
+      LD (IX+$08),E  ;height in pixels
+;put 0 in remaining fields
+      XOR A
+      LD (IX+$04),A
+      LD (IX+$09),A
+      LD (IX+$0B),A
+      LD (IX+$0A),$FE
+      LD HL,$C4BA    ;increment number of colliding dynamic objects
+      INC (HL)
+      SCF            ;set carry flag to indicate that monster was generated;
+$B420 RET
 
-----------------------
-;$B449 ??
+;----------------------
+;$B421 some lookup table for monsters, 8 items
+;      values: $04,$05,$06,$11,$12,$13,$14,$15
+; suspected meaning: $11 - monk
 
-;Params: IX (example: $DE52), regs H,L - coordinates in blocks
-;Returns: CF=1 ??when??
+;----------------------
+;$B429 some lookup table for dynamic objects. Maybe colors ?
 
-$B449 LD A,(IX+$00)  ;example value: $03
+;----------------------
+;$B449 Try to find suitable space for monster generation - $B4BA
+;Looks bottom-up (or top-down) for availabe 2x2 or 2x1 of empty space, depending on monster type
+;
+;Params: reg IX (example: $DE52),
+;        reg H - absolute horizontal coordinate in blocks of top block of area to be checked
+;        reg L - absolute vertical coordinate in blocks of top-left corner of area to be checked
+;Returns: CF=1 when found, reg HL contains address of top-left block in this 2x2 or 2x1 of empty space
+;
+
+$B449 LD A,(IX+$00)  ;example value: $03, monster type ??
       CP $05
-      JR Z,$B496
+      JR Z,$B496     ;go if value was 5
       DEC A
-      JR Z,$B4A3
+      JR Z,$B4A3     ;go if value was 1
       DEC A
-      JR Z,$B4A3
-      LD A,($C4E4)   ;shift of block in pixels
-      LD E,$08       ;normal value for additional coord
+      JR Z,$B4A3     ;go if value was 2
+                     ;continue if value was 3 or greater
+;at this point we have base horizontal and vertical coordinates in regs H and L.
+;we investigate level using additional coordinates in regs D and E
+
+;first pass, find if there is an empty block in whole visible column specified by base coordinates
+;we will go bottom-up. For that, first calculate address of bottom-left block, and make next-block shift to be negative
+      LD A,($C4E4)   ;vertical shift of block in pixels
+      LD E,$08       ;default value for additional vertical coord
       AND A
       JR NZ,$B45F
-      DEC E          ;if block is not shifted, decrement additional coord
-$B45F LD D,$00
-$B461 CALL $C8CD     ;calculate block's address
-      LD B,$07       ;loop counter
-      LD DE,$FFE2    ;it's a -1E
+      DEC E          ;if block is not shifted, decrement additional vertical coord
+$B45F LD D,$00       ;another part of horizontal coord, should just be 0, so only reg H is used
+$B461 CALL $C8CD     ;calculate bottom-left block's address based on vertical coord in regs L,E and horizontal coords in regs H,D
+                     ;block's address in HL, example: $9E64
+      LD B,$07       ;loop counter: ?? vertical number of block rows seen on screen ??
+      LD DE,$FFE2    ;const. it's a -1E, since 1E is a width of level in blocks. It's negative, so we will work bottom-up
 $B469 LD A,(HL)      ;read block value
       LD C,A         ;save in reg C
-      ADD HL,DE      ;add (subtract, in fact), get to one block above
-      AND $0F        ;mask
-      JR NZ,$B473    ;exit if found
+      ADD HL,DE      ;subtract level's width, to get to one block above
+      AND $0F        ;?? check if found non-empty block ??
+      JR NZ,$B473    ;go if found
       DJNZ $B469     ;or loop, if not found
-$B472 RET            ;return from proc
-;found block
+$B472 RET            ;return from proc, if block was not found
+;found empty block
 $B473 LD A,C         ;value before mask
-      AND $C0        ;new mask
+      AND $C0        ;?? new mask ?? monster trigger point ??
       JR Z,$B47B
-      DJNZ $B473     ;?? why
+      DJNZ $B473     ;?? why ?? probably bug, abd should be DJNZ $B469 ????
       RET
+;go bottom-up, try to find 2x2 blocks of empty space
 ;another loop
 $B47B LD A,(HL)      ;block value
       INC HL         ;move to the block to the right
       OR (HL)        ;combine
       DEC HL         ;move back
       ADD HL,DE      ;move one block up
-      AND $0F
+      AND $0F        ;?? check if combined value of tow blocks is empty ??
       JR Z,$B487     ;go if found
-      DJNZ $B47B
-      RET
-;another loop, very similar
-$B487 LD A,(HL)
-      INC HL
-      OR (HL)
-      DEC HL
-      AND $0F
-      JR Z,$B494
-      ADD HL,DE
-      DJNZ $B47B
-      AND A
-      RET
+      DJNZ $B47B     ;repeat if not found in this iteration
+      RET            ;return if not found at all
+;ok, we have found 2x1 of empty space, and we are already on 1 row above,
+;so check if we have another 2x1 of empty space
+$B487 LD A,(HL)      ;get block's value
+      INC HL         ;move to block to the right
+      OR (HL)        ;combine values
+      DEC HL         ;move back
+      AND $0F        ;?? check if combined value of two blocks is empty ??
+      JR Z,$B494     ;go to exit where carry flag is set
+      ADD HL,DE      ;go to block above
+      DJNZ $B47B     ;no, we have not found 2x1 of empty space here, start looking for 2x2 from beginning
+;if not found 2x2 of empty space and got to top of visible screen
+      AND A          ;reset reg A, ?? also clears carry flag ??
+      RET            ;exit
+;great, we have found 2x2 of empty space! Address of top-left block in this empty space is in HL
 $B494 SCF
 $B495 RET
 
-B496: LD DE, $0001
-B499: CALL $C8CD
-B49C: LD B, $06
-B49E: LD DE, $001E
-B4A1: JR $B47B
-B4A3: LD DE, $0001
-B4A6: CALL $C8CD
-B4A9: LD B, $06
-B4AB: LD DE, $001E
-B4AE: LD A, (HL)
-B4AF: INC HL
-B4B0: OR (HL)
-B4B1: DEC HL
-B4B2: AND $0F
-B4B4: JR Z, $B494
-B4B6: ADD HL, DE
-B4B7: DJNZ $B4AE
-B4B9: AND A
-B4BA: RE
+;for this monster type, we will go top-down
+$B496 LD DE,$0001    ;additional horizontal coord (reg D) = 0, additional vertical coord (reg L) = 1
+      CALL $C8CD     ;calculate top-left block's address based on vertical coord in regs L,E and horizontal coords in regs H,D
+                     ;block's address in HL
+      LD B, $06      ;?? number of visible block rows on screen ??
+      LD DE,$001E    ;const, level width in blocks
+      JR $B47B       ;go into that loop
 
-----------------------
+;For example, when moster is a bird, then go top-down, try to find 2x1 (w*h) of empty space.
+;regs H and L contain base horizontal and vertical coordinates
+$B4A3 LD DE,$0001    ;additional horizontal coord (reg D) = 0, additional vertical coord (reg L) = 1
+      CALL $C8CD     ;calculate top-left block's address based on vertical coord in regs L,E and horizontal coords in regs H,D
+                     ;block's address in HL
+      LD B,$06       ;?? number of visible block rows on screen ??
+      LD DE,$001E    ;const, level width in blocks
+$B4AE LD A,(HL)      ;get block value in reg A
+      INC HL         ;move to right
+      OR (HL)        ;combine
+      DEC HL         ;move to left
+      AND $0F        ;?? check if not empty ??
+      JR Z,$B494     ;found, go to exit
+      ADD HL,DE      ;if not found on this iteration, then move one block down by adding level's width in blocks
+      DJNZ $B4AE     ;and repeat
+      AND A          ;not found at all, got to top of visible screen, ??clear carry flag ??
+$B4BA RET            ;exit
+
+;----------------------
 ;$B4BB - check if location trigger is hit, activate monster ??
 
-$B4BB LD A,($C4BB)   ?? ;read variable
-      CP $04         ;check
-      RET NC         ;exit if greater or equal
+$B4BB LD A,($C4BB)   ;?? number of monsters
+      CP $04         ;const, max number of monsters ??
+      RET NC         ;exit if greater or equals
       LD IX,($C4CE)  ;?? base address, start of structures 06 bytes each ?? example value: $E17A for level 1
 ;loop
-$B4C5 LD A,(IX+$00)
-      AND A
-      RET Z          ;exit if 0
+$B4C5 LD A,(IX+$00)  ;read status byte
+      AND A          ;check if 0
+      RET Z          ;exit if we got to end of this 0-terminated list
 $B4CA BIT 7,A        ;check bit
-      JR Z,$B4D5
+      JR Z,$B4D5     ;go if bit is not set (trigger was not activated yet?)
 $B4CE LD BC,$0006    ;size of structure
       ADD IX,BC      ;move to next structure
       JR $B4C5       ;loop
-$B4D5 LD BC,$1008    ;special value
-      AND $18        ;mask
-      JR Z,$B4DF     ;if all remaining bits are 0, use special value
-      LD BC, $1818   ;default value
-$B4DF CALL $C000     ; ?? check if object goes outside of screen ??
-      JR NC,$B4CE    ;to next struct
+$B4D5 LD BC,$1008    ;const, sizes (reg B - horizontal, reg C - vertical) of monster
+      AND $18        ;mask, keep bits 4 and 3
+      JR Z,$B4DF     ;if those bits are 0, use this const
+      LD BC, $1818   ;const, other sizes (reg B - horizontal, reg C - vertical) of monster
+$B4DF CALL $C000     ;Check if triggered object is on screen, IX points to trigger structure
+      JR NC,$B4CE    ;if not, to next struct
 ;this code is executed when a trigger location is hit: dragon or ball appears
+;reg H (horizontal) and reg L (vertical) - coordinates on screen
       EX DE,HL
-      PUSH BC        ;save BC
+      PUSH BC        ;save size
       LD BC,$0101    ;argument
       LD HL,$241C    ;argument
       EXX
       LD BC,$B068    ;argument
       EXX
       CALL $C03D     ;check if intersects with ???
-      POP BC         ;restore
+      POP BC         ;restore size
       JR C,$B4CE     ;to next struct
-      LD A,(IX+$05)
+      LD A,(IX+$05)  ;example value: $44
       BIT 7,D
       JR Z,$B500
       OR $01
@@ -2064,16 +2186,16 @@ $B506 LD B,A
       AND $F8
       RLCA
       OR C
-      PUSH IX
-      CALL $B334
-      POP IX
-      JP NC,$B4CE
-      SET 7,(IX+$00)
+      PUSH IX        ;save
+      CALL $B334     ;generate monster
+      POP IX         ;restore
+      JP NC,$B4CE    ;if could not generate monster, return into loop
+      SET 7,(IX+$00) ;mark this trigger as done
       LD HL,$C4BB
-      INC (HL)
+      INC (HL)       ;increment number of monsters
 $B526 RET
 
-----------------------
+;----------------------
 ;$B527: Check if player hits the monster - $B5AC
 
 $B527 LD A,($C4C2)   ;??
@@ -2147,7 +2269,7 @@ $B5A6 LD HL,$C4DA
 $B5AC RET            ;exit otherwise
 
 
-----------------------
+;----------------------
 
 $B5AD - Collision detection ?????
 
@@ -2344,8 +2466,8 @@ B731: LD (IX+$00), $00
 B735: CALL $B73B
 B738: JP $B68E
 
-----------------------
-$B73B - decrement two counters
+;----------------------
+;$B73B - decrement two counters
 
 $B73B LD HL, $C4BA
       DEC (HL)
@@ -2353,8 +2475,8 @@ $B73B LD HL, $C4BA
       DEC (HL)
 $B743 RET
 
-----------------------
-$B744 - decrement two counters
+;----------------------
+;$B744 - decrement two counters
 
 $B744 LD HL,$C4BA
       DEC (HL)
@@ -2362,47 +2484,47 @@ $B744 LD HL,$C4BA
       DEC (HL)
 $B74C RET
 
-----------------------
-$B74D - check if two dynamic objects collide - $B767 (+2)
+;----------------------
+;$B74D - check if two dynamic objects collide - $B767 (+2)
 
-params:
-IX,IY - pointers to structures to check
-returns CF=1 if structures collide
+;params:
+;IX,IY - pointers to structures to check
+;returns CF=1 if structures collide
 
-$B74D LD E,(IX+$01)  ;coord of first object
-      LD D,(IX+$02)  ;coord of first object
-      LD C,(IX+$08)  ;size of first object
-      LD B,(IX+$07)  ;size of first object
-      LD L,(IY+$01)  ;coord of second object
-      LD H,(IY+$02)  ;coord of second object
-      EXX
-      LD C,(IY+$08)  ;size of second object
-      LD B,(IY+$07)  ;size of second object
-      EXX
-$B767 JP $C03D       ;check if rectangles intersect, will return to caller
+;$B74D LD E,(IX+$01)  ;coord of first object
+;      LD D,(IX+$02)  ;coord of first object
+;      LD C,(IX+$08)  ;size of first object
+;      LD B,(IX+$07)  ;size of first object
+;      LD L,(IY+$01)  ;coord of second object
+;      LD H,(IY+$02)  ;coord of second object
+;      EXX
+;      LD C,(IY+$08)  ;size of second object
+;      LD B,(IY+$07)  ;size of second object
+;      EXX
+;$B767 JP $C03D       ;check if rectangles intersect, will return to caller
 
-----------------------
+;----------------------
 
 
-----------------------
-$B77A - modify dynamic object after collision - $B77A
+;----------------------
+;$B77A - modify dynamic object after collision - $B77A
 
-Params: IX points to dynamic object structure
+;Params: IX points to dynamic object structure
 
-$B77A LD A,(IX+$00)  ;first byte
-      LD (IX+$05),A  ;save here
-      AND $18        ;mask, keep bits 3 and 4
-      OR $80         ;set bit 7
-      LD (IX+$00),A  ;store back
-      LD A,$07
-      LD ($A25C),A   ;???
-$B78C RET
+;$B77A LD A,(IX+$00)  ;first byte
+;      LD (IX+$05),A  ;save here
+;      AND $18        ;mask, keep bits 3 and 4
+;      OR $80         ;set bit 7
+;      LD (IX+$00),A  ;store back
+;      LD A,$07
+;      LD ($A25C),A   ;???
+;$B78C RET
 
-----------------------
-$B78D - modify dynamic object after collision - $B79F
+;----------------------
+;$B78D - modify dynamic object after collision - $B79F
 
-The same as $B77A, but object is addressed by IY instead of IX
-Params: IY points to dynamic object structure
+;The same as $B77A, but object is addressed by IY instead of IX
+;Params: IY points to dynamic object structure
 
 $B78D LD A, (IY+$00)
       LD (IY+$05),A
@@ -2413,10 +2535,10 @@ $B78D LD A, (IY+$00)
       LD ($A25C),A
 $B79F RET
 
-----------------------
-$B7A0 - Monster and missile movement, collision to walls, falling down
+;----------------------
+;$B7A0 - Monster and missile movement, collision to walls, falling down
 
-currently active monsters and missiles list is starting at $C3B5
+;currently active monsters and missiles list is starting at $C3B5
 
 $B7A0 LD A,($C4B0)   ;???
       CP $06
@@ -2725,8 +2847,8 @@ $BAAD LD HL,$C4BA
       DEC (HL)
 $BAB1 RET
 
-----------------------
-$BAB2: Colliding dynamic objects list maintenance - $BAF5
+;----------------------
+;$BAB2: Colliding dynamic objects list maintenance - $BAF5
 
 
 $BAB2 LD IX,$C3B5    ;colliding dynamic objects base address
@@ -2767,7 +2889,7 @@ $BAEF LD HL,$C4DA
 $BAF5 RET
 
 
-----------------------
+;----------------------
 ;$BAF6: check if statically placed collectable objects are visible, and create a visible object entry for it
 
 $BAF6 LD A,($C398)   ;current level
@@ -2896,10 +3018,10 @@ $BBB3 LD A,$09
       EX DE,HL
 $BBD0 JP (HL)       ;execute 'object collected' handler
 
-----------------------
+;----------------------
 ;$BBD1 - $BBDC: primary list of 'object collected' handlers:
 ;         $BBDD, $BBE4, $BBEB, $BC1F, $BC42, $BC6B
-----------------------
+;----------------------
 ;$BBDD, $BBE4, $BBEB : handlers for collecting dagger, axe or arrow
 
 $BBDD LD HL,$C3A3   ;strength of daggers addr
@@ -2934,7 +3056,7 @@ $BC14 RES 7,(IX+$00);mark object as 'not collected'
       LD ($A25C),A  ;don't play any sound
 $BC1C JP $BB2B      ;return to collected object loop
 
-----------------------
+;----------------------
 ;$BC1F : handler for collecting diamonds
 
 $BC1F LD A,($C3A6)  ;current amount of diamonds
@@ -2953,7 +3075,7 @@ $BC30 CALL $C0DC    ;clear all the diamonds on the indicator
       LD ($A25C),A  ;play sound
 $BC3F JP $BB2B      ;return to collected object loop
 
-----------------------
+;----------------------
 ;$BC42 : handler for collecting elemental piece
 
 $BC42 LD A,($C3A8)  ;current number of elemental pieces
@@ -2973,7 +3095,7 @@ $BC42 LD A,($C3A8)  ;current number of elemental pieces
       CALL $C189    ;update elemental indicator: colour the collected piece
 $BC68 JP $BB2B      ;return to collected object loop
 
-----------------------
+;----------------------
 ;$BC6B :
 
 $BC6B LD A,(IX+$00) ;load object code
@@ -2990,10 +3112,10 @@ $BC6B LD A,(IX+$00) ;load object code
       LD D,(HL)     ;load handler's address high byte
       EX DE,HL
 BC7E: JP (HL)       ;jump to handler
-----------------------
+;----------------------
 ;$BC7F : secondary list of collecting object handler
 
-----------------------
+;----------------------
 ;$BDF7: Check if moving platforms are visible, and create a visible colliding object for them - BECF (+2)
 
 ;Scan a list of moving platforms, start loaded from ($C4CC). If platform becomes visible, create an entry
@@ -3121,29 +3243,29 @@ $BEB7 LD ($C3AA),DE  ;update coordinates
       LD ($C4B6),A   ;save here as the number of platform player rides on
 BECF: JR $BE7E       ;back to common code
 
-----------------------
-$BED1: Update coordinates of script-moveable dynamic objects (clouds) - $BFFD (+2)
+;----------------------
+;$BED1: Update coordinates of script-moveable dynamic objects (clouds) - $BFFD (+2)
 
-For each level, there is a list of dynamic objects.
-List entry format:
-+0 (1 byte ) - ???, bit 2 shows direction
-+1 (2 bytes) - coordinate A, variable
-+3 (2 bytes) - coordinate B, variable
-+5 (2 bytes) - speed table base pointer, constant
-+7 (1 byte ) - current speed table entry offset.
-+8 (1 byte ) - timer
+;For each level, there is a list of dynamic objects.
+;List entry format:
+;+0 (1 byte ) - ???, bit 2 shows direction
+;+1 (2 bytes) - coordinate A, variable
+;+3 (2 bytes) - coordinate B, variable
+;+5 (2 bytes) - speed table base pointer, constant
+;+7 (1 byte ) - current speed table entry offset.
+;+8 (1 byte ) - timer
 
-Each object is moving in cycles. So, for each object there is a pointer to speed table, and current offset in this table.
-Each speed table entry is:
-+0 (1 byte) - two half-bytes are changes in coordinates A and B. They are added or subtracted, depending on direction bit
-+1 (1 byte) - time length (initial value for timer).
+;Each object is moving in cycles. So, for each object there is a pointer to speed table, and current offset in this table.
+;Each speed table entry is:
+;+0 (1 byte) - two half-bytes are changes in coordinates A and B. They are added or subtracted, depending on direction bit
+;+1 (1 byte) - time length (initial value for timer).
 
-So, cycles happen in a following way: while timer is decremented, a current value from speed table is used to change
-the coordinates. When timer comes to 0, and direction bit is "normal", then move to next entry in speed table, and init the timer.
-If next entry in speed table is special value "$FE", then set direction bit to "reverse", and start moving backwards in speed table.
+;So, cycles happen in a following way: while timer is decremented, a current value from speed table is used to change
+;the coordinates. When timer comes to 0, and direction bit is "normal", then move to next entry in speed table, and init the timer.
+;If next entry in speed table is special value "$FE", then set direction bit to "reverse", and start moving backwards in speed table.
 
-If player is riding a platform, then player is moved. For vertical movement, player's coordinates are updated.
-For horizontal movement,
+;If player is riding a platform, then player is moved. For vertical movement, player's coordinates are updated.
+;For horizontal movement,
 
 
 
@@ -3336,15 +3458,15 @@ $BFFD JP $BFB9      ;check next entry in speed table
 ;end of second branch
 
 
---------------------------
-$C000 - Check if dynamic scriptable object (cloud) is visible on screen  - C03C
+;--------------------------
+;$C000 - Check if dynamic scriptable object (cloud) is visible on screen  - C03C
 
-Params:
-reg IX points to object's structure
-reg B - horizontal size of dynamic object
-rec C - vertical size of dynamic object
+;Params:
+;reg IX points to object's structure
+;reg B - horizontal size of dynamic object
+;rec C - vertical size of dynamic object
 
-returns: CF is set if object is visible, H,L - coordinates on a screen
+;returns: CF is set if object is visible, reg H - horizontal coord, reg L - vertical coord on a screen
 
 $C000 LD DE,($C4E0)  ;value to subtract - horizontal coord of screen in pixels
       LD L,(IX+3)
@@ -3352,7 +3474,7 @@ $C000 LD DE,($C4E0)  ;value to subtract - horizontal coord of screen in pixels
       AND A
       SBC HL,DE      ;subtract, get horizontal offset of ?left? border of dynamic object from left border of screen
       LD A,L
-      EX AF,AF'      ;save result in A'
+      EX AF,AF'      ;save horizontal offset in A'
       LD E,B
       LD D,0         ;move horizontal size into DE
       ADD HL,DE      ;add
@@ -3377,21 +3499,21 @@ $C000 LD DE,($C4E0)  ;value to subtract - horizontal coord of screen in pixels
       LD A,C
       ADD A,$80      ;add ??vertical size of visible screen??
       LD E,A         ;into E
-      EX AF,AF'      ;restore result
+      EX AF,AF'      ;restore horizontal offset
       ADD A,$18      ;add ?
       AND A
-      SBC HL,DE      ;substract
-      LD H,A
-      LD L,B
+      SBC HL,DE      ;substract, obtain vertical coord and also set CF
+      LD H,A         ;horizontal
+      LD L,B         ;vertical
 $C03C RET
 
---------------------------
-$C03D - check if two rectangles intersect - $C054
+;--------------------------
+;$C03D - check if two rectangles intersect - $C054
 
-Params:
-DE: coords of first rectange's left upper corner, example: $1F60
-HL: coords of second rectangle's left upper corner, example: $DE50
-BC,B'C' = sizes of first and second rectangles
+;Params:
+;DE: coords of first rectange's left upper corner, example: $1F60
+;HL: coords of second rectangle's left upper corner, example: $DE50
+;BC,B'C' = sizes of first and second rectangles
 
 $C03D LD A,D
       SUB H          ;compare D and H
@@ -3414,10 +3536,10 @@ $C051 NEG            ;negate
       SUB B          ;subtract size
 $C054 JR $C044
 
---------------------------
-$C097: Reset score and print it  - $C0B4
+;--------------------------
+;$C097: Reset score and print it  - $C0B4
 
-$C0AB: Second entry point, just print the score
+;$C0AB: Second entry point, just print the score
 
 ;reset the score
 $C097 XOR A          ;fill memory with 0
@@ -3439,8 +3561,8 @@ $C0AB LD A,(DE)      ;get symbol
 $C0B2 DJNZ $C0AB     ;end of loop
 $C0B4 RET            ;exit
 
---------------------------
-$C0B5: Draw one symbol at specific place ? - $C0BF (+2)
+;--------------------------
+;$C0B5: Draw one symbol at specific place ? - $C0BF (+2)
 
 Param - ($C399) 
 
@@ -3450,8 +3572,8 @@ $C0B5 LD A,($C399)   ;get symbol code (values: 0)
       LD ($C32B),HL  ;store as param
 $C0BF JP $C2F3       ;draw symbol
 
---------------------------
-$C0C2: Draw current number of lives - $C0CC (+2)
+;--------------------------
+;$C0C2: Draw current number of lives - $C0CC (+2)
 
 $C0C2 LD A,($C3A7)   ;get number of lives
       DEC A
@@ -3459,7 +3581,7 @@ $C0C2 LD A,($C3A7)   ;get number of lives
       LD ($C32B),HL  ;store as param
 $C0CC JP $C2F3       ;draw symbol
 
---------------------------
+;--------------------------
 ;$C0CF : set the color of last collected diamond on the diamond indicator - $C0DB
 $C0CF LD B,$00
       LD HL,$C3A6    ;amount of diamonds addr
@@ -3469,8 +3591,8 @@ $C0CF LD B,$00
       LD (HL),$47    ;set the color of diamond
 $C0DB RET
 
---------------------------
-$C0DC: Clear colour for diamond indicator - $C0E7 (and control falls through)
+;--------------------------
+;$C0DC: Clear colour for diamond indicator - $C0E7 (and control falls through)
 
 $C0DC XOR A
       LD ($C3A6),A   ;amount of diamonds
@@ -3480,18 +3602,18 @@ $C0DC XOR A
 
 ; control falls to next procedure, which fills attribute area and returns
 
---------------------------
-$C0E8: Fill rectangle attrib area - $C0FB
+;--------------------------
+;$C0E8: Fill rectangle attrib area - $C0FB
 
-Params: A - value to fill with.
-        HL - memory area
-        B - length, C - height
+;Params: A - value to fill with.
+;        HL - memory area
+;        B - length, C - height
 
-C times calls $C512 to fill the memory
+;C times calls $C512 to fill the memory
 
 
---------------------------
-$C0FC: Print two-digit number - $C110 (+2)
+;--------------------------
+;$C0FC: Print two-digit number - $C110 (+2)
 
 Input: HL - video mem addr to print to, A - value
 
@@ -3510,8 +3632,8 @@ $C108 ADD A,$0A     ;restore low digit, if we got below 0
       POP AF        ;restore
 $C110 JP $C2F3      ;print, then ret. Shortcut for CALL $C2F3, RET 
 
---------------------------
-$C113: Draw current weapon and stength for all weapons - $C16F
+;--------------------------
+;$C113: Draw current weapon and stength for all weapons - $C16F
 
 ;print weapon strength
 $C113 LD A,($C3A2) ;strength for arrows
@@ -3563,7 +3685,7 @@ $C16C JP $CCA3     ;draw weapon sprite
 $C16F RET          ;will jump here from draw sprite (see $C15D). exit
 
 
---------------------------
+;--------------------------
 ;$C189 : Color collected elemental piece on indicator - $C19B (+2_
 
 $C189 LD HL,$C3A8  ;
@@ -3577,7 +3699,7 @@ $C189 LD HL,$C3A8  ;
       LD BC,$0202  ;width and heigth
 $C19B JP $C0E8     ;fill rectangle
 
---------------------------
+;--------------------------
 C19E: XOR A
       LD ($C3A8),A
       LD HL,$5A6D
@@ -3590,8 +3712,8 @@ C1AD: LD ($C397),A
 C1B4: RET
 
 
---------------------------
-$C19E: Reset elemental counter and their indicator - $C1AA (+2)
+;--------------------------
+;$C19E: Reset elemental counter and their indicator - $C1AA (+2)
 
 $C19E XOR A
       LD ($C3A8),A ;elemental counter
@@ -3600,10 +3722,10 @@ $C19E XOR A
       LD A,$41     ;will fill with these colours
 $C1AA JP $C0E8     ;jump to fill attrib rectangle proc
 
---------------------------
-$C1AD: Prepare to print message on game screen - $C1B4
+;--------------------------
+;$C1AD: Prepare to print message on game screen - $C1B4
 
-Param: reg A - message number
+;Param: reg A - message number
 
 $C1AD LD ($C397),A  ;store message number
       XOR A
@@ -3611,10 +3733,10 @@ $C1AD LD ($C397),A  ;store message number
 $C1B4 RET
 
 
---------------------------
-$C1B5: Print at the center of a screen - $C1F4 (+2)
+;--------------------------
+;$C1B5: Print at the center of a screen - $C1F4 (+2)
 
-Param: ($C397) - message number, byte
+;Param: ($C397) - message number, byte
 
 $C1B5 LD A,($C397) ;number of a message
       AND A
@@ -3650,41 +3772,41 @@ $C1DB CALL $C1F7   ;print
 .....              ;calc pause value
 $C1F4 JP $A4E2     ;pause and return
 
---------------------------
-$C1F7: Draw a set of words on a screen with attribute - $C239
-
-Input param: HL - address of a message. Attribute is first value
-Attribute is read, stored in ($C32F)
-
-$C1FC: Draw a set of words on a screen.
-
-Input param: HL - address of a message.
-Format is: two coordinates of a word, then symbols of a word. Last symbol
-is marked with bit 7 set. Then next two coordinates, and next word. End
-of message is marked by $FF.
-
-$C1FC - $C120
-Read a byte. If $FF, then exit immediatelly. Otherwise this is a horizonal coordinate.
-
-$C201 - $C20F
-Depending on bit 7 of coordinate, a call address at $C231 (2 bytes), which stores
-the address of print procedure, is populated with either $C2E4 or $C280 
-single or double-height procedures (self-modifying code).
-
-$C210 - $C21C
-Lower 5 bits are actual horizontal coordinate. Next byte is a vertical coordinate.
-To calculate an address in pixel area of video mem, a call to $C2D5 is made.
-Returned address is stored in ($C32B)
-
-$C21D - $C229
-For address in pixel area a corresponding address of attribute is calculated.
-It is stored in ($C32D)
-
-$C22A - $C239
-A loop to print symbols by calling either $C2E4 or $C280 (see above at $C201-$C20F), 
-until the one with 7 bit set is found, which means the end of a word.
-
---------------------------
+;--------------------------
+;$C1F7: Draw a set of words on a screen with attribute - $C239
+;
+;Input param: HL - address of a message. Attribute is first value
+;Attribute is read, stored in ($C32F)
+;
+;$C1FC: Draw a set of words on a screen.
+;
+;Input param: HL - address of a message.
+;Format is: two coordinates of a word, then symbols of a word. Last symbol
+;is marked with bit 7 set. Then next two coordinates, and next word. End
+;of message is marked by $FF.
+;
+;$C1FC - $C120
+;Read a byte. If $FF, then exit immediatelly. Otherwise this is a horizonal coordinate.
+;
+;$C201 - $C20F
+;Depending on bit 7 of coordinate, a call address at $C231 (2 bytes), which stores
+;the address of print procedure, is populated with either $C2E4 or $C280
+;single or double-height procedures (self-modifying code).
+;
+;$C210 - $C21C
+;Lower 5 bits are actual horizontal coordinate. Next byte is a vertical coordinate.
+;To calculate an address in pixel area of video mem, a call to $C2D5 is made.
+;Returned address is stored in ($C32B)
+;
+;$C21D - $C229
+;For address in pixel area a corresponding address of attribute is calculated.
+;It is stored in ($C32D)
+;
+;$C22A - $C239
+;A loop to print symbols by calling either $C2E4 or $C280 (see above at $C201-$C20F),
+;until the one with 7 bit set is found, which means the end of a word.
+;
+;--------------------------
 $C23A: Раскрашивание нескольких прямоугольных областей атрибутов - $C24D (+1)
 
 На входе: HL - "сценарий раскрашивания"
@@ -3811,7 +3933,7 @@ Entry size is $0C bytes. Entry format:
 +2 (1) horizontal coord in pixels
 +3 (1) ??
 +5 (1) ??
-+6 (1) ??
++6 (1) ?? color of object ??
 +7 (1) width in pixels
 +8 (1) height in pixels
 +9 - falling frame
@@ -3842,11 +3964,11 @@ $C4B0 (1) :  game state
 $C4B1 (1) :  ??
 $C4B3 (1) :  currently pressed logical keys: bit 0 - 'right', bit 1 - 'left', bit 2 - 'sit'
 $C4B6 (1) :  index of platform player rides on
-$C4B8 (1) :  ?? some flag
+$C4B8 (1) :  ?? some flag ?? maybe flag that boss was killed, so everything is in blue ??
 
 
 $C4BA (1) : number of visible colliding dynamic objects (monsters, missiles, clouds)
-$C4BB (1) : ??
+$C4BB (1) : ?? number of monsters ??
 $C4BE (1) : ??
 $C4BF (1) : current jumping/falling frame. Bit 7 indicates if it is jumping or falling (1 - falling).
             If jumping, table base is $C5CA, if falling, table base is $C5D8
@@ -3858,7 +3980,7 @@ $C4C8 (1) : shift accumulator
 $C4CA (2) : pointer to statically placed collectable objects for current level
 $C4CC (2) : pointer to scripted dynamic object (cloud) coord/speed/time table for current level
 $C4CE (2) : result of searching for 0 from $E17A with step $06
-$C4D0 (2) : result of searching for 0 from $DE52 with step $0A
+$C4D0 (2) : base address of monster generation table (0-terminated) for current level
 $C4D2 (2) : result of searching for 0 from $DE2E with step $03
 $C4D4 (2) : ?? timer counting down ??
 $C4D6 (2) : ?? last random value ??
@@ -3869,9 +3991,10 @@ $C4DA (1) : misc temp variable used in different procedures:
 $C4DB (1) : misc temp variable
 $C4DC (2) : temp variable, offset from the beginning of a sprite
 
-$C4E0 - number of pixels from left border of level to left border of screen
-$C4E2 - number of pixels from top border of level to top border of screen
-$C4E4 - (2) horizontal and vertical shift of upper left block in pixels from left and upper screen borders
+$C4E0 (2) : number of pixels from left border of level to left border of screen
+$C4E2 (2) : number of pixels from top border of level to top border of screen
+$C4E4 (1) : vertical shift of upper left block in pixels from left and upper screen borders
+$C4E5 (1) : horizontal shift of upper left block in pixels from left and upper screen borders
 $C4E6 (1) : horizontal movement of screen to the left since last time, in pixels
 $C4E7 (1) : vertical movement of screen up since last time, in pixels
 $C4E8 (2) : horizontal and vertical coordinates in labyrinth blocks of current upper left visible block
@@ -4365,7 +4488,7 @@ C7E9: LD H, L
 C7EA: LD L, C
 C7EB: RET
 
---------------
+;--------------
 ;$C7EC: We just hit the destructible level block, turn it into colliding object - $C818
 ;Param: HL - coords of block in pixels, reg H has horizontal coord, reg L has vertical coord
 
@@ -4399,7 +4522,7 @@ $C813 LD (HL),A     ;base+6, write
       INC (HL)      ;increment
 $C818 RET
 
---------------
+;--------------
 ;$C819: Coord calculation - $C857
 
 ;based on complex horizonal coord ($C4E9)+($C4EC)+($C4EA) and complex vertical coord ($C4E8)+($C4ED)+($C4EB)
@@ -4413,15 +4536,15 @@ $C819 LD A,($C4EC)  ;horizontal shift in 8-pixel bytes to the left, values from 
       LD A,($C4EA)  ;horizontal shift in pixel pairs, values from 0 till 3
       ADD A,A       ;*2
       ADD A,H       ;add
-      LD D,A        ;into reg D
+      LD D,A        ;full horizontal shift of left visible block in pixels into reg D
       LD A,($C4ED)  ;vertical shift
       ADD A,A       ;*2
       LD L,A        ;into L
       LD A,($C4EB)  ;vertical shift
       ADD A,A       ;*2
       ADD A,L       ;add
-      LD E,A        ;into E
-      LD ($C4E4),DE ;save
+      LD E,A        ;full vertical shift of top visible block in pixels into reg E
+      LD ($C4E4),DE ;save horizontal shift into ($C4E5) and vertical into ($C4E4)
       LD A,($C4E9)  ;horizontal coord in blocks
       LD H,0 
       LD B,H
@@ -4564,11 +4687,16 @@ $C8C4 JR NZ,$C8B3  ;outer loop
       AND $0F      ;mask
 $C8CC RET
 
---------------
-;$C8CD: Calculate address of block - $C8E0
+;--------------
+;$C8CD: Calculate address of block in unpacked map of current level - $C8E0
 ;
-;Params: H,D - horizontal coords in blocks, L,E - vertical coords in blocks
+;Params: H+D - horizontal coord in blocks, L+E - vertical coord in blocks
 ;Returns: block address in HL
+;
+;Well, actually, level's width is always 1E, so it's not clear why lookup table is needed
+;Probably, to avoid multiplication, which will make this proc to work slower when verical coordinates are high
+;currently performance is constant for vertical coordinates, but with multiplication it will be linear
+;to prove that performance is the reason, need to check if this proc is called that often
 
 $C8CD LD A,L
       ADD A,E
@@ -4576,22 +4704,22 @@ $C8CD LD A,L
       LD L,A       ;to L
       LD A,H
       ADD A,D      ;A = H + D
-      LD H,0       ;H to 0
+      LD H,0
       LD DE,$C8E1  ;table base
-      ADD HL,DE    ;add doubled vertical coords as offset
+      ADD HL,DE    ;add doubled vertical coord as offset
       LD E,(HL)
       INC HL
       LD D,(HL)    ;DE contains two bytes from table: address of leftmost block for given vertical coords
       LD L,A
       LD H,0       ;reg HL now contains sum of horizontal coords
-      ADD HL,DE    ;add horizontal coords to get block's address
+      ADD HL,DE    ;add horizontal coord to address of leftmost block to get requested block's address
 $C8E0 RET
---------------
+;--------------
 ;$C8E1: Table with precalculated addresses of leftmost blocks - $C920
 ;       values: $9D72,$9D90,$9DAE,$9DCC. diff - 1E
 ;       Total 129 pair of bytes
 
---------------
+;--------------
 ;$C924: Horizontal move of visible screen to the right - $C94D
 ;moves by one pixel pair
 ;updates complex horizonal coord stored in vars ($C4E9)+($C4EC)+($C4EA)
@@ -4619,7 +4747,7 @@ $C924 LD HL,($C4E8)
       LD ($C4E8),HL     ;increment horizontal coord in level blocks
 $C94F RET
 
---------------
+;--------------
 ;$C950: Horizontal move of visible screen to the left - $C990
 ;moves by one pixel pair
 ;updates complex horizonal coord stored in vars ($C4E9)+($C4EC)+($C4EA)
@@ -4658,7 +4786,8 @@ $C950 LD HL,($C4E8)     ;horizontal coord in level blocks
       LD ($C4EA),A
       LD ($C4EC),A
 $C990 RET               ;and exit
---------------
+
+;--------------
 ;$C991: Vertical move of visible screen up, all content goes down - $C9CE
 ;moves by one pixel pair
 ;Updates complex vertical coord stored in vars ($C4E8)+($C4ED)+($C4EB)
@@ -4698,7 +4827,7 @@ $C991 LD HL,($C4E8)     ;coords of upper left visible block in blocks
       LD ($C4ED),A
 $C9CE RET
 
---------------
+;--------------
 ;$C9CF: Vertical move of visible screen down, all content go up - $C9F5
 ;moves by one pixel pair
 ;Updates complex vertical coord stored in vars ($C4E8)+($C4ED)+($C4EB)
@@ -4724,14 +4853,14 @@ $C9CF LD HL,($C4E8)     ;coords of upper left visible block in blocks
       LD ($C4E8),HL     ;write back
 $C9F5 RET
 
---------------
-$C9F6: Draw dynamic objects - $CA2D (+1)
-
-Param: IY - return address
-
+;--------------
+;$C9F6: Draw dynamic objects - $CA2D (+1)
+;
+;Param: IY - return address
+;
 $C9F6 LD ($CA2B),IY ;modify the code, put return address
 
-$C9FA: Second entry point
+;$C9FA: Second entry point
 
 ;platform draw loop
 $C9FA LD HL,($CC81) ;pointer to struct holding dynamic drawn object info ($C439, $C442)
@@ -4758,15 +4887,14 @@ $CA26 LD ($CC79),A  ;?? store the flag
 $CA29 LD IY,$....   ;restore return address, this code is modified above
 $CA2D JP (IY)       ;return
 
---------------
-
-$CA2F - Draw platform/enemy sprite - $CB6D
-
-IY - return address
-DE - video addr?
-HL - sprite addr
-
-Heavily uses code modification with values stored in table at $CC83
+;--------------
+;$CA2F - Draw platform/enemy sprite - $CB6D
+;
+;IY - return address
+;DE - video addr?
+;HL - sprite addr
+;
+;Heavily uses code modification with values stored in table at $CC83
 
 $CA2F LD BC,$0C04
       LD ($CC7D),BC ;04 - default visible width of a sprite, 0C - default height of a sprite
@@ -5007,15 +5135,15 @@ $CC81 (?) - pointer to current dynamic drawn object
 $CC83 - table for code modification of procedure $CA2F.
         Contains 4 entries, 8-byte each
 
---------------
-$CCA3: Draw a (3*1) sprite - $CD12 (+2)
-
-Input: HL - address of a sprite
-       DE - video memory addr
-       ($CC7C) - attribute
-       ($CC7F) - same as DE
-
-Sprite height is 8 pixels, width is 8*3 = 24 pixels
+;--------------
+;$CCA3: Draw a (3*1) sprite - $CD12 (+2)
+;
+;Input: HL - address of a sprite
+;       DE - video memory addr
+;       ($CC7C) - attribute
+;       ($CC7F) - same as DE
+;
+;Sprite height is 8 pixels, width is 8*3 = 24 pixels
 
 
 $CCA3 LD BC, $021E  ;B - height, С - how much bytes to skip to 
@@ -5107,15 +5235,15 @@ $CD0F JP NZ $CCFE   ;to the beginning of the loop
 ;end of loop
 $CD12 JP $C9FA      ;return
 
---------------
-$CD15: Draw a sprite, width = 4 bytes - $CE77 (+1)
-
-Input: HL - address of a sprite
-       DE - video memory addr
-       ($CC7C) - attribute
-       ($CC7F) - same as DE
-       height of a sprite is controlled by modifying a code at locations $CD17, $CD95,
-       IY - return addr
+;--------------
+;$CD15: Draw a sprite, width = 4 bytes - $CE77 (+1)
+;
+;Input: HL - address of a sprite
+;       DE - video memory addr
+;       ($CC7C) - attribute
+;       ($CC7F) - same as DE
+;       height of a sprite is controlled by modifying a code at locations $CD17, $CD95,
+;       IY - return addr
 
 $CD15 LD BC,??      ;this code is modified before the call, B - height of sprite, in 8-pixel units
       LD A,($CC7C)  ;attribute
@@ -5339,8 +5467,8 @@ $CE4F POP HL
 ;end of part 4
 $CE77 JP (IY)      ;return
 
---------------
-$CE8F: Draw a normal platform - $CEA8 (+2)
+;--------------
+;$CE8F: Draw a normal platform - $CEA8 (+2)
 
 $CE8F LD A,3
       LD ($CD17),A  ;modify the code of proc $CD15: height of a platform in 8-pixel units
@@ -5354,8 +5482,8 @@ $CEA0 LD HL,$CD17   ;will return here
       INC (HL)      ;modify (?restore?) the code of proc $CD15: height of a object in 8-pixel units
 $CEA8 JP $C9FA      ;return
 
---------------
-$CED2: Draw a partly-visible platform at the top of the screen - $CED9 (+2)
+;--------------
+;$CED2: Draw a partly-visible platform at the top of the screen - $CED9 (+2)
 
 $CED2 LD B,A
       RRCA          ; div by 2
@@ -6817,12 +6945,12 @@ $D8FB JP $C9F6       ;draw dynamic objects
 $D8FE LD SP,($DB90)  ;restore stack pointer
 $D902 RET            ;return
 
---------------------
-$D903: Find sprite descriptors for level - $D91F
-
-Param: ($C398) - level number
-Result: IX - list of level block sprite numbers used in level
-        IY - color attribs for sprites (2 bytes, one for top, one for bottom)
+;--------------------
+;$D903: Find sprite descriptors for level - $D91F
+;
+;Param: ($C398) - level number
+;Result: IX - list of level block sprite numbers used in level
+;        IY - color attribs for sprites (2 bytes, one for top, one for bottom)
 
 $D903 LD A,($C398)   ; get level
       LD L,A
@@ -6845,9 +6973,8 @@ $D903 LD A,($C398)   ; get level
       POP IY         ;into IY
 $D91F RET
 
---------------------
-
-$D920: Prepare sprite set for level's blocks with horizontally shifted versions - $D9C4
+;--------------------
+;$D920: Prepare sprite set for level's blocks with horizontally shifted versions - $D9C4
 
 ;unpack sprites into temp area
 $D920 LD DE,$5D00    ;base address of all packed sprites
@@ -6946,11 +7073,11 @@ $D9A6 LD HL,$EBFD
       LD ($FDFE),HL
 $D9C4 RET            
 
---------------------
-$D9C5: Shift memory area of 6 byte-strings to the right by 1 bit - $D9E4
-
-Param: HL - address in memory
-shifts (6 bytes string)*($0C*$10 times)
+;--------------------
+;$D9C5: Shift memory area of 6 byte-strings to the right by 1 bit - $D9E4
+;
+;Param: HL - address in memory
+;shifts (6 bytes string)*($0C*$10 times)
 
 $D9C5 PUSH HL        ;save addr
       AND A
@@ -6979,11 +7106,11 @@ $D9D9 LD BC,$0006    ;to next
 $D9E4 RET
 
 
---------------------
-$D9E5: Unpack sprites into temp area - $DA14 (+1)
-
-Params: HL - temp area
-        DE - sprite source area
+;--------------------
+;$D9E5: Unpack sprites into temp area - $DA14 (+1)
+;
+;Params: HL - temp area
+;        DE - sprite source area
 
 $D9E5 LD BC,$FEBD    ;end of sprites temp area
       LD ($A79C),BC  ;modify the code of compare procedure
@@ -7016,25 +7143,37 @@ $DA0B DEC A          ;decrement counter
 $DA14 JR $DA0B       ;keep writing the same value into memory
 
 
---------------------
-$DA16: Sprite-set info for blocks of levels.
-       36 bytes for each level describe 12 blocks: 12 bytes are sprite numbers, 
-       and then 24 bytes are color-pairs for sprites (top color, bottom color)
+;--------------------
+;$DA16: Sprite-set info for blocks of levels.
+;       36 bytes for each level describe 12 blocks: 12 bytes are sprite numbers,
+;       and then 24 bytes are color-pairs for sprites (top color, bottom color)
+;
+;$DB5A: Level blocks info table
+;       4 bytes for each block:
+;             2 bytes are sprite offset from base of current level's sprite set
+;             2 bytes are color attribs: one for top slice of block, another for bottom
+;       Looks like the first block is pre-defined (empty ?)
+;
+;$DB8E (2) : base address for sprite-set of level blocks for current horizontal shift
+;$DB90 (2) : Temp storage for SP
+;
+;$DB92: Addresses of handlers for monster/missile collision detection: $B8BC, $B8BF, $B8EA
+;
+;$DBCC: Message table. 2 bytes for each message pointer
+;
+;DDB1 ?
 
-$DB5A: Level blocks info table
-       4 bytes for each block:
-             2 bytes are sprite offset from base of current level's sprite set
-             2 bytes are color attribs: one for top slice of block, another for bottom
-       Looks like the first block is pre-defined (empty ?)
 
-$DB8E (2) : base address for sprite-set of level blocks for current horizontal shift
-$DB90 (2) : Temp storage for SP
 
-$DB92: Addresses of handlers for monster/missile collision detection: $B8BC, $B8BF, $B8EA
-
-$DBCC: Message table. 2 bytes for each message pointer
-
-DDB1 ?
+;$DE52 - Monster generation data for Level 1
+; A list of items with size $0A, 0-terminated list
+; Format of item:
+;   +$00 (1) : monster type
+;   +$01 (1) : ??
+;   +$02 (2) : offset of monster generation area in pixels from left border of level
+;   +$04 (2) : offset of monster generation area in pixels from top border of level
+;   +$06 (2) : offset of monster generation area in pixels from right border of level
+;   +$08 (2) : offset of monster generation area in pixels from bottom border of level
 
 <======================================>
 $E576:  Набор процедур и данных для меню, демо, таблицы очков - $????<

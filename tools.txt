@@ -1,0 +1,4 @@
+1. Since I cannot find any emulators which allow plugins accessing memory, so tools will work with snapshots
+2. Tools should be able to walk over in-memory structures (lists, global variables) and display their values
+
+3. For static lists, see: $A4EB

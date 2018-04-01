@@ -1,0 +1,26 @@
+1. There are monster generation lists for each level, starting from $DE52 - level 1.
+List consists of 10-byte structures, first byte is a monster type. Lists are 0-terminated.
+Play-check all monster sets for each level! For example, Level 1 has monsters 01 and 03
+
+2. Mark all constants in comments as const
+
+3. Need a text description of a)processes and b)code structure, like an article:
+   * Monster generation (structure: root $B2B1, it calls $B449 and $B334)
+
+4. In some monster-related procedures ($B4BB, ... ) there are branches to determine moster sizes depending on monster type.
+   Play-check them!
+
+5. Clarify $C000. It is small, but still not clear
+
+6. Draw diagramms of dynamic structures:
+     * triggers, monster areas -> dynamic objects
+     * scriptable clouds -> dynamic objects
+     * dynamic objects -> visible objects
+
+7. Large areas of interest:
+     $AF90 (p5)
+     $CFB5 (p5)
+     $AA79 (p5)
+     $A96A (p4)
+
+

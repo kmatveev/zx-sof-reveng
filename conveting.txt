@@ -1,0 +1,6 @@
+The idea is to have some kind of text processor which will convert disassembly into assembler sources which
+will allow to compile a game from those sources.
+
+Things to consider:
+
+1. There are two kinds of address labels: those to which some jumps/calls are made, and those just for information only
